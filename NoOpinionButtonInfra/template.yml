@@ -9,12 +9,12 @@ Resources:
     Cors:
       AllowOrigins: "'*'"  # 任意のドメインからのアクセスを許可
       AllowMethods: "'GET,POST,OPTIONS'"  # 使用するHTTPメソッドを指定
-  NoOpinionButtonFunction:
+  SignInFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      Handler: NoOpinionButtonFunction::NoOpinionButtonFunction.Function::FunctionHandler
+      Handler: SignInFunction::SignInFunction.Function::FunctionHandler
       Runtime: dotnet8
-      CodeUri: src/LambdaHandlers/NoOpinionButtonFunction/src/NoOpinionButtonFunction
+      CodeUri: src/LambdaHandlers/SignInFunction/src/SignInFunction
       MemorySize: 128
       Timeout: 5
       Events:

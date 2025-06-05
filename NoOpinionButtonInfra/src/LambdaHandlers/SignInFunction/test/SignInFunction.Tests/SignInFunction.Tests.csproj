@@ -13,6 +13,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NoOpinionButtonFunction\NoOpinionButtonFunction.csproj" />
+    <ProjectReference Include="..\..\src\SignInFunction\SignInFunction.csproj" />
   </ItemGroup>
 </Project>

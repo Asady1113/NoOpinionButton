@@ -53,12 +53,12 @@ namespace NoOpinionButtonInfra
             });
 
             // Lambda関数の定義
-            var noOpinionButtonLambda = new Function(this, "NoOpinionButtonFunction", new FunctionProps
+            var signInLambda = new Function(this, "SignInFunction", new FunctionProps
             {
                 Runtime = Runtime.DOTNET_8,  // .NET 8 を使用（Lambda関数をC#で記述）
                 // cdk.jsonから見たパス
-                Code = Code.FromAsset("src/LambdaHandlers/NoOpinionButtonFunction/src/NoOpinionButtonFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
-                Handler = "NoOpinionButtonFunction::NoOpinionButtonFunction.Function::FunctionHandler",  // C#のエントリーポイント
+                Code = Code.FromAsset("src/LambdaHandlers/SignInFunction/src/SignInFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
+                Handler = "SignInFunction::SignInFunction.Function::FunctionHandler",  // C#のエントリーポイント
                 Environment = new Dictionary<string, string>
                 {
                     // Lambda関数内で参照する環境変数
@@ -71,11 +71,11 @@ namespace NoOpinionButtonInfra
             });
 
             // Lambda関数にDynamoDBアクセス権を付与（データの取得・挿入）
-            administratorTable.GrantReadWriteData(noOpinionButtonLambda);
-            meetingTable.GrantReadWriteData(noOpinionButtonLambda);
-            participantTable.GrantReadWriteData(noOpinionButtonLambda);
-            messageTable.GrantReadWriteData(noOpinionButtonLambda);
-            buttonActivityTable.GrantReadWriteData(noOpinionButtonLambda);
+            administratorTable.GrantReadWriteData(signInLambda);
+            meetingTable.GrantReadWriteData(signInLambda);
+            participantTable.GrantReadWriteData(signInLambda);
+            messageTable.GrantReadWriteData(signInLambda);
+            buttonActivityTable.GrantReadWriteData(signInLambda);
 
             // RestApi（REST API v1）を作成
             var api = new RestApi(this, "NoOpinionButtonApi", new RestApiProps
@@ -90,7 +90,7 @@ namespace NoOpinionButtonInfra
 
             // ANY /{proxy+} を1つのLambdaに紐付ける
             var proxyResource = api.Root.AddResource("{proxy+}"); // プレースホルダ付きのルート
-            proxyResource.AddMethod("ANY", new LambdaIntegration(noOpinionButtonLambda));
+            proxyResource.AddMethod("ANY", new LambdaIntegration(signInLambda));
             // TODO; どんどんエンドポイントを追加していく
         }
     }

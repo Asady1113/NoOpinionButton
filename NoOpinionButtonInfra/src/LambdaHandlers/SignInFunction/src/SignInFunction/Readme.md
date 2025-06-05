@@ -38,12 +38,12 @@ If already installed check if new version is available.
 
 Execute unit tests
 ```
-    cd "NoOpinionButtonFunction/test/NoOpinionButtonFunction.Tests"
+    cd "SignInFunction/test/SignInFunction.Tests"
     dotnet test
 ```
 
 Deploy function to AWS Lambda
 ```
-    cd "NoOpinionButtonFunction/src/NoOpinionButtonFunction"
+    cd "SignInFunction/src/SignInFunction"
     dotnet lambda deploy-function
 ```

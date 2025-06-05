@@ -2,7 +2,7 @@ using Xunit;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
 
-namespace NoOpinionButtonFunction.Tests;
+namespace SignInFunction.Tests;
 
 public class FunctionTest
 {
