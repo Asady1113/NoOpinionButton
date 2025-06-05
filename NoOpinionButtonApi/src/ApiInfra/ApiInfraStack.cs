@@ -5,11 +5,11 @@ using Amazon.CDK.AWS.APIGateway;
 using Amazon.CDK.AWS.DynamoDB;
 using Constructs;
 
-namespace NoOpinionButtonInfra
+namespace ApiInfra
 {
-    public class NoOpinionButtonInfraStack : Stack
+    public class ApiInfraStack : Stack
     {
-        internal NoOpinionButtonInfraStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
+        internal ApiInfraStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
         {
             // DynamoDBのテーブル定義
             var administratorTable = new Table(this, "Administrator", new TableProps {

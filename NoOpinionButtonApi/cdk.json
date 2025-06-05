@@ -1,5 +1,5 @@
 {
-  "app": "dotnet run --project src/NoOpinionButtonInfra/NoOpinionButtonInfra.csproj",
+  "app": "dotnet run --project src/ApiInfra/ApiInfra.csproj",
   "watch": {
     "include": [
       "**"
