@@ -9,7 +9,6 @@ namespace NoOpinionButtonFunction;
 
 public class Function
 {
-    
     /// <summary>
     /// API Gateway からのリクエストを処理するLambdaハンドラー
     /// </summary>
@@ -18,17 +17,25 @@ public class Function
     /// <returns></returns>
     public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        var response = new
-            {
-                message = "Test",
-                input = request.Body
-            };
+        // TODO; ログインのエンドポイントから（フォルダ名等も変えたほうがいいかも）
+        string path = request.Path;
+        string method = request.HttpMethod;
 
-        return new APIGatewayProxyResponse
+        if (path == "/top" && method == "GET")
         {
-            StatusCode = 200,
-            Body = JsonSerializer.Serialize(response),
-            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-        };
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 200,
+                Body = "トップページのデータ"
+            };
+        }
+        else
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 404,
+                Body = "Not Found"
+            };
+        }
     }
 }

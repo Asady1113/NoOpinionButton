@@ -56,7 +56,8 @@ namespace NoOpinionButtonInfra
             var noOpinionButtonLambda = new Function(this, "NoOpinionButtonFunction", new FunctionProps
             {
                 Runtime = Runtime.DOTNET_8,  // .NET 8 を使用（Lambda関数をC#で記述）
-                Code = Code.FromAsset("src/LambdaFunctions/NoOpinionButtonFunction/src/NoOpinionButtonFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
+                // cdk.jsonから見たパス
+                Code = Code.FromAsset("src/LambdaHandlers/NoOpinionButtonFunction/src/NoOpinionButtonFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
                 Handler = "NoOpinionButtonFunction::NoOpinionButtonFunction.Function::FunctionHandler",  // C#のエントリーポイント
                 Environment = new Dictionary<string, string>
                 {
@@ -76,16 +77,20 @@ namespace NoOpinionButtonInfra
             messageTable.GrantReadWriteData(noOpinionButtonLambda);
             buttonActivityTable.GrantReadWriteData(noOpinionButtonLambda);
 
-            // APIGatewayとの統合
+            // RestApi（REST API v1）を作成
             var api = new RestApi(this, "NoOpinionButtonApi", new RestApiProps
             {
                 RestApiName = "NoOpinionButton API",
-                Description = "This Service is backend for NoOpnionButton"
+                Description = "This Service is backend for NoOpinionButton",
+                DeployOptions = new StageOptions
+                {
+                    StageName = "prod"
+                }
             });
 
-            // Topページ用のリソースを作成
-            var topResource = api.Root.AddResource("top");  // "/top"というリソース（エンドポイント）を作成
-            topResource.AddMethod("GET", new LambdaIntegration(noOpinionButtonLambda));  // Lambdaと紐付ける
+            // ANY /{proxy+} を1つのLambdaに紐付ける
+            var proxyResource = api.Root.AddResource("{proxy+}"); // プレースホルダ付きのルート
+            proxyResource.AddMethod("ANY", new LambdaIntegration(noOpinionButtonLambda));
             // TODO; どんどんエンドポイントを追加していく
         }
     }
