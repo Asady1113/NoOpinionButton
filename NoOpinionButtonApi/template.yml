@@ -14,7 +14,7 @@ Resources:
     Properties:
       Handler: SignInFunction::SignInFunction.Function::FunctionHandler
       Runtime: dotnet8
-      CodeUri: src/LambdaHandlers/SignInFunction/src/SignInFunction
+      CodeUri: src/Api/LambdaHandlers/SignInFunction/src/SignInFunction
       MemorySize: 128
       Timeout: 5
       Events:

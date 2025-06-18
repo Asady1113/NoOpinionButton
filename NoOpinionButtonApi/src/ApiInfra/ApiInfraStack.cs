@@ -57,7 +57,7 @@ namespace ApiInfra
             {
                 Runtime = Runtime.DOTNET_8,  // .NET 8 を使用（Lambda関数をC#で記述）
                 // cdk.jsonから見たパス
-                Code = Code.FromAsset("src/LambdaHandlers/SignInFunction/src/SignInFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
+                Code = Code.FromAsset("src/Api/LambdaHandlers/SignInFunction/src/SignInFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
                 Handler = "SignInFunction::SignInFunction.Function::FunctionHandler",  // C#のエントリーポイント
                 Environment = new Dictionary<string, string>
                 {
