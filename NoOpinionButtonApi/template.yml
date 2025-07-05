@@ -22,5 +22,5 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref NoOpinionButtonApi
-            Path: /participant
+            Path: /signin
             Method: post

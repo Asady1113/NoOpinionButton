@@ -19,5 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Core\Core.csproj" />
     <ProjectReference Include="..\..\..\..\DependencyInjection\DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\..\..\Common\Common.csproj" />
   </ItemGroup>
 </Project>
