@@ -14,12 +14,14 @@ public class SignInService : ISignInService
     // </inheridoc>
     public async Task<SignInServiceResponse> SignInAsync(SignInServiceRequest request)
     {
-        Participant participant = await _signInRepository.SignInAsync();
+        // TODO; パスワードの判定等
+        Participant participant = await _signInRepository.SignInAsync(request.MeetingId, request.Password);
 
         var response = new SignInServiceResponse
         {
             Id = participant.Id,
             MeetingId = participant.MeetingId,
+            MeetingName = "MockName"
         };
         
         return response;

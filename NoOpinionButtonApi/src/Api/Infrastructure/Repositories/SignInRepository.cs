@@ -1,17 +1,34 @@
-﻿using Core.Domain;
+﻿using Amazon.DynamoDBv2.DataModel;
+using Core.Domain;
+using Infrastructure.Entities;
 
 namespace Infrastructure.Repository;
 
 public class SignInRepository : ISignInRepository
 {
-    public async Task<Participant> SignInAsync()
+    private readonly IDynamoDBContext _context;
+
+    public SignInRepository(IDynamoDBContext context)
     {
-        // MockData
+        _context = context;
+    }
+
+    public async Task<Participant> SignInAsync(int meetingId, string password)
+    {
+        // TODO リファクタリング
+        string id = Guid.NewGuid().ToString();
+        var entity = new ParticipantEntity
+        {
+            Id = id,
+            MeetingId = meetingId,
+        };
+
+        await _context.SaveAsync(entity);
+    
         var participant = new Participant
         {
-            Id = 1,
-            Name = "MockName",
-            MeetingId = 1,
+            Id = id,
+            MeetingId = meetingId,
         };
         return participant;
     }

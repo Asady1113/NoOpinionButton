@@ -7,6 +7,14 @@ Docker起動
 * sam build
 * sam local start-api
 
+### デプロイ実行
+* cd /src
+* dotnet build
+* cdk bootstrap
+* cdk diff
+* cdk synth
+* cdk deploy
+
 # Welcome to your CDK C# project!
 
 This is a blank project for CDK development with C#.

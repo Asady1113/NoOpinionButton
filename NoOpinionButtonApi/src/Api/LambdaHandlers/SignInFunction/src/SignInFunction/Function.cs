@@ -67,6 +67,7 @@ public class Function
         {
             Id = signInServiceResponse.Id,
             MeetingId = signInServiceResponse.MeetingId,
+            MeetingName = signInServiceResponse.MeetingName,
         };
     }
 

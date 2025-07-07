@@ -13,40 +13,45 @@ namespace ApiInfra
         {
             // DynamoDBのテーブル定義
             var administratorTable = new Table(this, "Administrator", new TableProps {
+                TableName = "Administrator",
                 // 主キーを設定
-                PartitionKey = new Attribute { Name = "adminId", Type = AttributeType.STRING },
+                PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 BillingMode = BillingMode.PAY_PER_REQUEST, // 従量課金
                 // TODO: 本番環境では、データを消したくないので RETAINにする
                 RemovalPolicy = RemovalPolicy.DESTROY
             });
 
             var meetingTable = new Table(this, "Meeting", new TableProps {
+                TableName = "Meeting",
                 // 主キーを設定
-                PartitionKey = new Attribute { Name = "meetingId", Type = AttributeType.STRING },
+                PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 BillingMode = BillingMode.PAY_PER_REQUEST, // 従量課金
                 // TODO: 本番環境では、データを消したくないので RETAINにする
                 RemovalPolicy = RemovalPolicy.DESTROY
             });
 
             var participantTable = new Table(this, "Participant", new TableProps {
+                TableName = "Participant",
                 // 主キーを設定
-                PartitionKey = new Attribute { Name = "participantId", Type = AttributeType.STRING },
+                PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 BillingMode = BillingMode.PAY_PER_REQUEST, // 従量課金
                 // TODO: 本番環境では、データを消したくないので RETAINにする
                 RemovalPolicy = RemovalPolicy.DESTROY
             });
 
             var messageTable = new Table(this, "Message", new TableProps {
+                TableName = "Message",
                 // 主キーを設定
-                PartitionKey = new Attribute { Name = "messageId", Type = AttributeType.STRING },
+                PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 BillingMode = BillingMode.PAY_PER_REQUEST, // 従量課金
                 // TODO: 本番環境では、データを消したくないので RETAINにする
                 RemovalPolicy = RemovalPolicy.DESTROY
             });
 
             var buttonActivityTable = new Table(this, "ButtonActivity", new TableProps {
+                TableName = "ButtonActivity",
                 // 主キーを設定
-                PartitionKey = new Attribute { Name = "activityId", Type = AttributeType.STRING },
+                PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 BillingMode = BillingMode.PAY_PER_REQUEST, // 従量課金
                 // TODO: 本番環境では、データを消したくないので RETAINにする
                 RemovalPolicy = RemovalPolicy.DESTROY
