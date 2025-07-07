@@ -1,22 +1,22 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
-using Core.Domain;
+using Core.Domain.Entities;
+using Core.Domain.Ports;
 using Infrastructure.Entities;
 
 namespace Infrastructure.Repository;
 
-public class SignInRepository : ISignInRepository
+public class ParticipantRepository : IParticipantRepository
 {
     private readonly IDynamoDBContext _context;
 
-    public SignInRepository(IDynamoDBContext context)
+    public ParticipantRepository(IDynamoDBContext context)
     {
         _context = context;
     }
 
-    public async Task<Participant> SignInAsync(int meetingId, string password)
+    // </inheridoc>
+    public async Task<Participant> SaveParticipant(string id, int meetingId)
     {
-        // TODO リファクタリング
-        string id = Guid.NewGuid().ToString();
         var entity = new ParticipantEntity
         {
             Id = id,
@@ -24,7 +24,7 @@ public class SignInRepository : ISignInRepository
         };
 
         await _context.SaveAsync(entity);
-    
+
         var participant = new Participant
         {
             Id = id,

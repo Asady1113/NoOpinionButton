@@ -1,21 +1,25 @@
-﻿using Core.Domain;
+﻿using Core.Domain.Entities;
+using Core.Domain.Ports;
+using Core.Domain.Logics;
 
 namespace Core.Application;
 
 public class SignInService : ISignInService
 {
-    private readonly ISignInRepository _signInRepository;
+    private readonly IParticipantRepository _participantRepository;
+    private readonly ParticipantLogic participantLogic = new ParticipantLogic();
 
-    public SignInService(ISignInRepository signInRepository)
+    public SignInService(IParticipantRepository participantRepository)
     {
-        _signInRepository = signInRepository;
+        _participantRepository = participantRepository;
     }
 
     // </inheridoc>
     public async Task<SignInServiceResponse> SignInAsync(SignInServiceRequest request)
     {
         // TODO; パスワードの判定等
-        Participant participant = await _signInRepository.SignInAsync(request.MeetingId, request.Password);
+        string id = participantLogic.GenerateId();
+        Participant participant = await _participantRepository.SaveParticipant(id, request.MeetingId);
 
         var response = new SignInServiceResponse
         {

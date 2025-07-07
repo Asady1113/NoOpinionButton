@@ -3,7 +3,7 @@ using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Core.Application;
-using Core.Domain;
+using Core.Domain.Ports;
 using Infrastructure.Repository;
 
 namespace DependencyInjection;
@@ -28,7 +28,7 @@ public static class DependencyInjectionConfig
         services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
 
         services.AddTransient<ISignInService, SignInService>();
-        services.AddTransient<ISignInRepository, SignInRepository>();
+        services.AddTransient<IParticipantRepository, ParticipantRepository>();
 
         return services.BuildServiceProvider();
     }
