@@ -15,7 +15,7 @@ public class ParticipantRepository : IParticipantRepository
     }
 
     // </inheridoc>
-    public async Task<Participant> SaveParticipant(string id, int meetingId)
+    public async Task<Participant> SaveParticipantAsync(string id, int meetingId)
     {
         var entity = new ParticipantEntity
         {

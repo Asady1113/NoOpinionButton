@@ -10,5 +10,5 @@ public interface IParticipantRepository
     /// <param name="id">Id</param>
     /// <param name="meetingId">MeetingId</param>
     /// <returns>保存されたParticipant</returns>
-    Task<Participant> SaveParticipant(string id, int meetingId);
+    Task<Participant> SaveParticipantAsync(string id, int meetingId);
 }

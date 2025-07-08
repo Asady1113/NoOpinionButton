@@ -29,6 +29,7 @@ public static class DependencyInjectionConfig
 
         services.AddTransient<ISignInService, SignInService>();
         services.AddTransient<IParticipantRepository, ParticipantRepository>();
+        services.AddTransient<IMeetingRepository, MeetingRepository>();
 
         return services.BuildServiceProvider();
     }
