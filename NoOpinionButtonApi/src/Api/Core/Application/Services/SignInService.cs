@@ -22,24 +22,40 @@ public class SignInService : ISignInService
     {
         Meeting meeting = await _meetingRepository.GetMeetingByIdAsync(request.MeetingId);
 
-        bool isCorrectPassword = _meetingLogic.VerifyPassword(request.Password, meeting);
+        PasswordType passwordType = _meetingLogic.VerifyPassword(request.Password, meeting);
 
-        if (isCorrectPassword == false)
+        if (passwordType == PasswordType.InvalidPassword)
         {
-            throw new ArgumentException("password is invalid");
+            throw new KeyNotFoundException("password is invalid");
         }
 
-        string id = _participantLogic.GenerateId();
-        Participant participant = await _participantRepository.SaveParticipantAsync(id, request.MeetingId);
+        var isFacilitator = passwordType == PasswordType.Facilitator ? true : false;
 
-        var response = new SignInServiceResponse
+        if (isFacilitator)
         {
-            Id = participant.Id,
-            MeetingId = participant.MeetingId,
-            MeetingName = "MockName"
-        };
+            var response = new SignInServiceResponse
+            {
+                MeetingId = meeting.Id,
+                MeetingName = meeting.Name,
+                IsFacilitator = isFacilitator,
+            };
+            return response;
+        }
+        else
+        {
+            string id = _participantLogic.GenerateId();
+            Participant participant = await _participantRepository.SaveParticipantAsync(id, request.MeetingId);
 
-        return response;
+            var response = new SignInServiceResponse
+            {
+                Id = participant.Id,
+                MeetingId = participant.MeetingId,
+                MeetingName = meeting.Name,
+                IsFacilitator = isFacilitator,
+            };
+
+            return response;
+        }
     }
 
 }
