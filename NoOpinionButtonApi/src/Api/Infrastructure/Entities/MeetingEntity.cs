@@ -6,11 +6,11 @@ namespace Infrastructure.Entities;
 public class MeetingEntity
 {
     [DynamoDBHashKey]  // パーティションキー
-    public string Id { get; set; }
+    public string Id { get; set; } = "";
     [DynamoDBProperty]
-    public string Name { get; set; }
+    public string Name { get; set; } = "";
     [DynamoDBProperty]
-    public string FacilitatorPassword { get; set; }
+    public string FacilitatorPassword { get; set; } = "";
     [DynamoDBProperty]
-    public string ParticipantPassword { get; set; }
+    public string ParticipantPassword { get; set; } = "";
 }

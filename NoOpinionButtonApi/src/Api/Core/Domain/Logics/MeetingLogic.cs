@@ -4,6 +4,12 @@ namespace Core.Domain.Logics;
 
 public class MeetingLogic
 {
+    /// <summary>
+    /// Meetingのパスワードを判定する
+    /// </summary>
+    /// <param name="input">パスワード/param>
+    /// <param name="meeting">Meeting</param>
+    /// <returns>一致しているかどうか（一致：true, 不一致：false）</returns>
     public bool VerifyPassword(string input, Meeting meeting)
     {
         if (input == meeting.ParticipantPassword)

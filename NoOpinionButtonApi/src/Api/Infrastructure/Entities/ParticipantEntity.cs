@@ -6,13 +6,13 @@ namespace Infrastructure.Entities;
 public class ParticipantEntity
 {
     [DynamoDBHashKey]  // パーティションキー
-    public string Id { get; set; }
+    public string Id { get; set; } = "";
 
     [DynamoDBProperty]
     public string Name { get; set; } = "";
 
     [DynamoDBProperty]
-    public string MeetingId { get; set; }
+    public string MeetingId { get; set; } = "";
 
     [DynamoDBProperty]
     public int NoOpinionPoint { get; set; } = 0;
