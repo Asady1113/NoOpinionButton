@@ -6,7 +6,7 @@ public class MeetingLogic
 {
     public bool VerifyPassword(string input, Meeting meeting)
     {
-        if (input == meeting.ParticipantsPassword)
+        if (input == meeting.ParticipantPassword)
         {
             return true;
         }

@@ -39,12 +39,16 @@ public class Function
                     SignInResponse responseBody = await HandleSignIn(request);
                     return ApiResponseFactory.Ok(responseBody);
                 default:
-                    return ApiResponseFactory.NotFound();
+                    return ApiResponseFactory.NotFound("Requested endpoint was not found.");
             }
         }
         catch (ArgumentException ex)
         {
             return ApiResponseFactory.BadRequest(ex.Message);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return ApiResponseFactory.NotFound(ex.Message);
         }
         catch (Exception ex)
         {
@@ -86,8 +90,7 @@ public class Function
             throw new ArgumentException("missing query parameter.");
         }
 
-        if (!queryParams.TryGetValue("meetingId", out var meetingIdStr) ||
-            !int.TryParse(meetingIdStr, out var meetingId))
+        if (!queryParams.TryGetValue("meetingId", out var meetingId) || string.IsNullOrEmpty(meetingId))
         {
             throw new ArgumentException("Invalid or missing 'meetingId' query parameter.");
         }

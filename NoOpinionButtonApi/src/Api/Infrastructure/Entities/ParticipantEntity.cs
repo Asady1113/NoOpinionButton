@@ -12,7 +12,7 @@ public class ParticipantEntity
     public string Name { get; set; } = "";
 
     [DynamoDBProperty]
-    public int MeetingId { get; set; }
+    public string MeetingId { get; set; }
 
     [DynamoDBProperty]
     public int NoOpinionPoint { get; set; } = 0;

@@ -29,8 +29,8 @@ public class ApiResponseFactory
     /// 固定メッセージを JSON にシリアライズして返します。
     /// </summary>
     /// <returns>APIGatewayProxyResponse オブジェクト（ステータスコード 404）</returns>
-    public static APIGatewayProxyResponse NotFound() => 
-        BuildResponse(404, new ApiResponse<object> { Error = "Not Found" });
+    public static APIGatewayProxyResponse NotFound(string errorMessage) => 
+        BuildResponse(404, new ApiResponse<object> { Error = errorMessage });
 
     /// <summary>
     /// サーバー内部エラーを示す 500 Internal Server Error レスポンスを生成します。

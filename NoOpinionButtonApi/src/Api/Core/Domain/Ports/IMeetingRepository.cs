@@ -9,5 +9,5 @@ public interface IMeetingRepository
     /// </summary>
     /// <param name="id">Id</param>
     /// <returns>Idと一致するMeeting</returns>
-    Task<Meeting> GetMeetingByIdAsync(int id);
+    Task<Meeting> GetMeetingByIdAsync(string id);
 }
