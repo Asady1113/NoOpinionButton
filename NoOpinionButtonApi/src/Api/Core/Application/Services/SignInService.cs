@@ -1,6 +1,6 @@
 ﻿using Core.Domain.Entities;
 using Core.Domain.Ports;
-using Core.Domain.Logics;
+using Common.Utilities;
 
 namespace Core.Application;
 
@@ -8,8 +8,6 @@ public class SignInService : ISignInService
 {
     private readonly IParticipantRepository _participantRepository;
     private readonly IMeetingRepository _meetingRepository;
-    private readonly ParticipantLogic _participantLogic = new ParticipantLogic();
-    private readonly MeetingLogic _meetingLogic = new MeetingLogic();
 
     public SignInService(IParticipantRepository participantRepository, IMeetingRepository meetingRepository)
     {
@@ -22,14 +20,14 @@ public class SignInService : ISignInService
     {
         Meeting meeting = await _meetingRepository.GetMeetingByIdAsync(request.MeetingId);
 
-        PasswordType passwordType = _meetingLogic.VerifyPassword(request.Password, meeting);
+        PasswordType passwordType = meeting.VerifyPassword(request.Password);
 
         if (passwordType == PasswordType.InvalidPassword)
         {
-            throw new KeyNotFoundException("password is invalid");
+            throw new UnauthorizedAccessException("password is invalid");
         }
 
-        var isFacilitator = passwordType == PasswordType.Facilitator ? true : false;
+        var isFacilitator = passwordType == PasswordType.Facilitator;
 
         if (isFacilitator)
         {
@@ -43,7 +41,7 @@ public class SignInService : ISignInService
         }
         else
         {
-            string id = _participantLogic.GenerateId();
+            string id = IdGenerator.GenerateGuid();
             Participant participant = await _participantRepository.SaveParticipantAsync(id, request.MeetingId);
 
             var response = new SignInServiceResponse

@@ -46,6 +46,10 @@ public class Function
         {
             return ApiResponseFactory.BadRequest(ex.Message);
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            return ApiResponseFactory.Unauthorized(ex.Message);
+        }
         catch (KeyNotFoundException ex)
         {
             return ApiResponseFactory.NotFound(ex.Message);

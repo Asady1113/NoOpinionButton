@@ -1,12 +1,12 @@
-namespace Core.Domain.Logics;
+namespace Common.Utilities;
 
-public class ParticipantLogic
+public static class IdGenerator
 {
     /// <summary>
     /// IDを生成するメソッド
     /// </summary>
     /// <returns>生成されたID</returns>
-    public string GenerateId()
+    public static string GenerateGuid()
     {
         return Guid.NewGuid().ToString();
     }

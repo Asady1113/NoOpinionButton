@@ -23,13 +23,21 @@ public class ApiResponseFactory
     /// <returns>APIGatewayProxyResponse オブジェクト（ステータスコード 400）</returns>
     public static APIGatewayProxyResponse BadRequest(string errorMessage) =>
         BuildResponse(400, new ApiResponse<object> { Error = errorMessage });
+    
+    /// <summary>
+    /// 認証情報が正しくない／足りないことを示す401 Unauthorizedレスポンスを生成します。
+    /// </summary>
+    /// <param name="errorMessage">エラーメッセージ</param>
+    /// <returns>APIGatewayProxyResponse オブジェクト（ステータスコード 401）</returns>
+    public static APIGatewayProxyResponse Unauthorized(string errorMessage) =>
+        BuildResponse(401, new ApiResponse<object> { Error = errorMessage });
 
     /// <summary>
     /// リクエストされたリソースが見つからないことを示す 404 Not Found レスポンスを生成します。
     /// 固定メッセージを JSON にシリアライズして返します。
     /// </summary>
     /// <returns>APIGatewayProxyResponse オブジェクト（ステータスコード 404）</returns>
-    public static APIGatewayProxyResponse NotFound(string errorMessage) => 
+    public static APIGatewayProxyResponse NotFound(string errorMessage) =>
         BuildResponse(404, new ApiResponse<object> { Error = errorMessage });
 
     /// <summary>

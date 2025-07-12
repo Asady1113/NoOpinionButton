@@ -1,4 +1,5 @@
 namespace Core.Domain.Entities;
+
 public class Participant
 {
     public string Id { get; set; } = "";
