@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
@@ -38,6 +39,8 @@ public class Function
                 case ("/signin", "POST"):
                     SignInResponse responseBody = await HandleSignIn(request);
                     return ApiResponseFactory.Ok(responseBody);
+                case ("/signin", "OPTIONS"):
+                    return ApiResponseFactory.Options();
                 default:
                     return ApiResponseFactory.NotFound("Requested endpoint was not found.");
             }
@@ -68,7 +71,7 @@ public class Function
     /// <returns>SignInResponse</returns>
     private async Task<SignInResponse> HandleSignIn(APIGatewayProxyRequest request)
     {
-        SignInServiceRequest signInServiceRequest = CreateSignInServiceRequest(request.QueryStringParameters);
+        SignInServiceRequest signInServiceRequest = CreateSignInServiceRequest(request.Body);
         SignInServiceResponse signInServiceResponse = await _signInService.SignInAsync(signInServiceRequest);
 
         return new SignInResponse
@@ -82,33 +85,36 @@ public class Function
 
     /// <summary>
     /// SignInServiceRequest を生成する。
-    /// 必須: meetingId (int)、password (string)。
+    /// 必須: meetingId, password (JSON)
     /// </summary>
-    /// <param name="queryParams">クエリパラメータ</param>
+    /// <param name="body">JSON Body</param>
     /// <returns>SignInServiceRequest</returns>
-    /// <exception cref="ArgumentNullException">queryParams が null の場合</exception>
-    /// <exception cref="ArgumentException">パラメータが不足または不正な場合</exception>
-    private SignInServiceRequest CreateSignInServiceRequest(IDictionary<string, string>? queryParams)
+    /// <exception cref="ArgumentException">Body が null / 不正な場合</exception>
+    private SignInServiceRequest CreateSignInServiceRequest(string? body)
     {
-        if (queryParams is null)
+        if (string.IsNullOrEmpty(body))
         {
-            throw new ArgumentException("missing query parameter.");
+            throw new ArgumentException("Missing request body.");
         }
 
-        if (!queryParams.TryGetValue("meetingId", out var meetingId) || string.IsNullOrEmpty(meetingId))
+        try
         {
-            throw new ArgumentException("Invalid or missing 'meetingId' query parameter.");
-        }
+            SignInRequest? request = JsonSerializer.Deserialize<SignInRequest>(body);
+            if (request == null || string.IsNullOrEmpty(request.MeetingId) || string.IsNullOrEmpty(request.Password))
+            {
+                throw new ArgumentException("Invalid request body. 'meetingId' and 'password' are required.");
+            }
 
-        if (!queryParams.TryGetValue("password", out var password) || string.IsNullOrEmpty(password))
-        {
-            throw new ArgumentException("Missing 'password' query parameter.");
+            SignInServiceRequest signInServiceRequest = new SignInServiceRequest
+            {
+                MeetingId = request.MeetingId,
+                Password = request.Password,
+            };
+            return signInServiceRequest;
         }
-
-        return new SignInServiceRequest
+        catch (JsonException)
         {
-            MeetingId = meetingId,
-            Password = password
-        };
+            throw new ArgumentException("Invalid JSON format in request body.");
+        }
     }
 }

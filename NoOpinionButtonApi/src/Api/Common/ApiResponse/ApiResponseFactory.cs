@@ -23,7 +23,7 @@ public class ApiResponseFactory
     /// <returns>APIGatewayProxyResponse オブジェクト（ステータスコード 400）</returns>
     public static APIGatewayProxyResponse BadRequest(string errorMessage) =>
         BuildResponse(400, new ApiResponse<object> { Error = errorMessage });
-    
+
     /// <summary>
     /// 認証情報が正しくない／足りないことを示す401 Unauthorizedレスポンスを生成します。
     /// </summary>
@@ -50,14 +50,16 @@ public class ApiResponseFactory
 
     /// <summary>
     /// 指定されたステータスコードとレスポンスボディをもとに
-    /// APIGatewayProxyResponse を生成します。
+    /// <c>APIGatewayProxyResponse</c> を生成します。
     /// レスポンスボディは JSON にシリアライズされ、
-    /// Content-Type ヘッダーは application/json に設定されます。
+    /// CORS 設定を含むレスポンスヘッダーが自動的に付与されます。
     /// </summary>
     /// <typeparam name="T">レスポンスボディの型</typeparam>
     /// <param name="statusCode">HTTP ステータスコード</param>
-    /// <param name="body">レスポンスボディ</param>
-    /// <returns>APIGatewayProxyResponse オブジェクト</returns>
+    /// <param name="body">レスポンスボディ（API の結果データ）</param>
+    /// <returns>
+    /// CORS ヘッダー付きの <c>APIGatewayProxyResponse</c> オブジェクト
+    /// </returns>
     private static APIGatewayProxyResponse BuildResponse<T>(int statusCode, ApiResponse<T> body) =>
         new()
         {
@@ -65,7 +67,28 @@ public class ApiResponseFactory
             Body = JsonSerializer.Serialize(body),
             Headers = new Dictionary<string, string>
             {
-                ["Content-Type"] = "application/json"
+                ["Content-Type"] = "application/json",
+                ["Access-Control-Allow-Origin"] = "*"   // 全てのオリジンを許可する（本番では指定）
+            }
+        };
+    
+    /// <summary>
+    /// プリフライトリクエスト（CORS の OPTIONS リクエスト）に対する
+    /// 200 OK の空レスポンスを生成します。
+    /// 必要な CORS ヘッダーを含み、ボディは空です。
+    /// </summary>
+    /// <returns>
+    /// CORS ヘッダー付きの <c>APIGatewayProxyResponse</c> オブジェクト（ステータスコード 200）
+    /// </returns>
+    public static APIGatewayProxyResponse Options() =>
+        new()
+        {
+            StatusCode = 200,
+            Headers = new Dictionary<string, string>
+            {
+                ["Access-Control-Allow-Origin"] = "*",  // 全てのオリジンを許可する（本番では指定）
+                ["Access-Control-Allow-Headers"] = "*", // クライアントが送ってくるリクエストヘッダーのうち、全てを許可
+                ["Access-Control-Allow-Methods"] = "OPTIONS,POST,GET"  // どの HTTP メソッドを許可するかを指定
             }
         };
 }

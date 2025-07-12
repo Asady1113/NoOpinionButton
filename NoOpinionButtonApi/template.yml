@@ -23,4 +23,4 @@ Resources:
           Properties:
             RestApiId: !Ref NoOpinionButtonApi
             Path: /signin
-            Method: post
+            Method: ANY
