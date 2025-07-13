@@ -1,6 +1,10 @@
+import { useRuntimeConfig } from '#app'
+
 export function useSignInApi() {
+  const config = useRuntimeConfig()
+
   async function signIn(meetingId: string, password: string) {
-    const response = await fetch('http://127.0.0.1:3000/signin', {
+    const response = await fetch(`${config.public.apiBaseUrl}/signin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
