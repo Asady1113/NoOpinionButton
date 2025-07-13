@@ -13,7 +13,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useSignInApi } from '~/composables/useSignInApi';
+import { useSignInApi } from '~/composables/signIn/useSignInApi'
+import { useSignInStore } from '~/composables/signIn/useSignIn'
 import { useRouter } from 'vue-router'
 
 const meetingId = ref('')
@@ -30,6 +31,13 @@ async function submit() {
   try {
     const response = await signIn(meetingId.value, password.value);
     const data = response.Data;
+
+    const signInStore = useSignInStore()
+    signInStore.value = {
+      id: data.id,
+      meetingId: data.meetingId,
+      meetingName: data.meetingName,
+    }
     
     if (data.isFacilitator) {
       router.push(`/facilitator`) 
