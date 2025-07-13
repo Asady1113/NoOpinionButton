@@ -45,7 +45,7 @@ async function submit() {
       router.push('/participant') 
     }
   } catch (e) {
-    console.error(`Error`)
+    alert(e.message);
   }
 }
 </script>
