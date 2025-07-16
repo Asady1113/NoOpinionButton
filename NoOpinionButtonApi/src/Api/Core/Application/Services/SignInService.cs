@@ -24,7 +24,7 @@ public class SignInService : ISignInService
 
         if (passwordType == PasswordType.InvalidPassword)
         {
-            throw new UnauthorizedAccessException("password is invalid");
+            throw new UnauthorizedAccessException("Password is invalid");
         }
 
         var isFacilitator = passwordType == PasswordType.Facilitator;
