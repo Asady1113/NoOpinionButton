@@ -67,6 +67,7 @@ sam local start-api
 - 基本的なUI画面（signin.vue, participant.vue, facilitator.vue）作成済み
 
 ## 開発時の注意点
+- ClaudeCodeは、思考は英語で、会話は日本語で行う
 - クリーンアーキテクチャに従って実装
 - DynamoDBのパーティションキー設計に注意
 - CORS設定が必要（Tips/CORS.md参照）
