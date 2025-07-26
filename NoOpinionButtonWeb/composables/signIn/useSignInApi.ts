@@ -20,6 +20,7 @@ export function useSignInApi() {
       switch (response.status) {
         case 400:
           type = ApiErrorType.BadRequest
+          break
         case 401:
           type = ApiErrorType.Unauthorized
           break
