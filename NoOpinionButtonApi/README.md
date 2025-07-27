@@ -1,31 +1,75 @@
-# 「意見ありませんボタン」システムのAPI
-### DB定義所
-Database.md
+# 意見ありませんボタン API
 
-### ローカル実行
-Docker起動
-* sam build
-* sam local start-api
+「意見ありませんボタン」システムのバックエンドAPIです。.NET Core + AWS Lambda + DynamoDBで構築されたサーバーレスアプリケーションです。
 
-### デプロイ実行
-* cd /src
-* dotnet build
-* cdk bootstrap
-* cdk diff
-* cdk synth
-* cdk deploy
+## 🚀 クイックスタート
 
-# Welcome to your CDK C# project!
+### 開発環境セットアップ
+```bash
+# 依存関係のビルド
+dotnet build src
 
-This is a blank project for CDK development with C#.
+# テスト実行
+dotnet test
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+# ローカル実行
+sam build
+sam local start-api
+```
 
-It uses the [.NET CLI](https://docs.microsoft.com/dotnet/articles/core/) to compile and execute your project.
+### デプロイ手順
+```bash
+cd src
+dotnet build
+cdk bootstrap  # 初回のみ
+cdk diff       # 変更内容確認
+cdk deploy     # デプロイ実行
+```
 
-## Useful commands
+## 📁 プロジェクト構造
 
-* `dotnet build src` compile this app
-* `cdk deploy`       deploy this stack to your default AWS account/region
-* `cdk diff`         compare deployed stack with current state
-* `cdk synth`        emits the synthesized CloudFormation template
+```
+NoOpinionButtonApi/
+├── src/
+│   ├── Api/
+│   │   ├── Core/           # ドメインロジック・サービス
+│   │   ├── Infrastructure/ # リポジトリ実装
+│   │   └── LambdaHandlers/ # AWS Lambda関数
+│   └── ApiInfra/          # AWS CDKインフラ定義
+├── tests/                 # 単体テスト（20+テストケース）
+└── docs/                  # 詳細ドキュメント
+```
+
+## 🔧 技術スタック
+
+- **.NET Core 8**: サーバーレスアプリケーション
+- **AWS Lambda**: API実行環境
+- **DynamoDB**: NoSQLデータベース
+- **API Gateway**: RESTful API
+- **AWS CDK**: Infrastructure as Code
+
+## 📋 実装状況
+
+- ✅ **サインイン機能**: 完全実装・テスト完了
+- ✅ **認証ロジック**: 司会者/参加者判定
+- ✅ **単体テスト**: Core/Infrastructure/LambdaHandlers層
+- ⏳ **意見表明機能**: 未実装
+- ⏳ **リアルタイム同期**: 未実装
+
+## 🧪 テスト実行
+
+```bash
+# 全テスト実行
+dotnet test
+
+# 特定のプロジェクトのテスト
+dotnet test tests/CoreTests
+dotnet test tests/InfrastructureTests
+dotnet test tests/LambdaHandlersTests
+```
+
+## 📚 詳細ドキュメント
+
+- **[アーキテクチャ設計](./docs/architecture.md)**: システム設計・クリーンアーキテクチャ
+- **[API仕様](./docs/api-specification.md)**: エンドポイント・リクエスト/レスポンス
+- **[データベース設計](./docs/database.md)**: DynamoDB設計・テーブル構造
