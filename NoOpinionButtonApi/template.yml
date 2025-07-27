@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2025-05-05'
+Transform: 'AWS::Serverless-2016-10-31'
+Resources:
+  NoOpinionButtonApi:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      Name: 'NoOpinionButton API'
+      StageName: 'dev'
+    Cors:
+      AllowOrigins: "'*'"  # 任意のドメインからのアクセスを許可
+      AllowMethods: "'GET,POST,OPTIONS'"  # 使用するHTTPメソッドを指定
+  SignInFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: SignInFunction::SignInFunction.Function::FunctionHandler
+      Runtime: dotnet8
+      CodeUri: src/Api/LambdaHandlers/SignInFunction/src/SignInFunction
+      MemorySize: 128
+      Timeout: 5
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NoOpinionButtonApi
+            Path: /signin
+            Method: ANY
