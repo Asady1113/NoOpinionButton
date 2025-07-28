@@ -2,9 +2,24 @@ namespace Core.Domain.Entities;
 
 public class Meeting
 {
+    /// <summary>
+    /// ミーティングID（主キー）
+    /// </summary>
     public string Id { get; set; } = "";
+
+    /// <summary>
+    /// ミーティング名
+    /// </summary>
     public string Name { get; set; } = "";
+
+    /// <summary>
+    /// 司会者用パスワード
+    /// </summary>
     public string FacilitatorPassword { get; set; } = "";
+
+    /// <summary>
+    /// 参加者用パスワード
+    /// </summary>
     public string ParticipantPassword { get; set; } = "";
 
     /// <summary>
