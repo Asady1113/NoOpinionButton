@@ -9,10 +9,12 @@ namespace Core.Application.Services
     public class ChatService
     {
         private readonly IMessageRepository _messageRepository;
+        private readonly IMessageNotificationClient _notificationClient;
 
-        public ChatService(IMessageRepository messageRepository)
+        public ChatService(IMessageRepository messageRepository, IMessageNotificationClient notificationClient)
         {
             _messageRepository = messageRepository;
+            _notificationClient = notificationClient;
         }
 
         /// <summary>
@@ -34,6 +36,9 @@ namespace Core.Application.Services
 
             // データベースに保存
             var savedMessage = await _messageRepository.SaveAsync(message);
+
+            // 参加者に通知を送信
+            await _notificationClient.NotifyMessageAsync(request.MeetingId, savedMessage);
 
             // レスポンス作成（Successフラグなし）
             return new PostMessageResponse
