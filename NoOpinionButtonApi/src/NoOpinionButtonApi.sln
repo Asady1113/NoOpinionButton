@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SignInFunction", "SignInFun
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6CB1CBE9-F28E-F810-8A03-9FB8C876F3E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignInFunction", "Api\LambdaHandlers\SignInFunction\src\SignInFunction\SignInFunction.csproj", "{7E9D91DE-07BF-4253-8E29-BE41C271D143}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignInFunction", "Api\LambdaHandlers\SignInFunction\SignInFunction.csproj", "{7E9D91DE-07BF-4253-8E29-BE41C271D143}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyInjection", "Api\DependencyInjection\DependencyInjection.csproj", "{12668C5C-3F2A-47AF-BB7F-E8B994950A30}"
 EndProject

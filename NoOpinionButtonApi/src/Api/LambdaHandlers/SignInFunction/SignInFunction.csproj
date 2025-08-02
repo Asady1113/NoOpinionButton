@@ -17,8 +17,8 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Core\Core.csproj" />
-    <ProjectReference Include="..\..\..\..\DependencyInjection\DependencyInjection.csproj" />
-    <ProjectReference Include="..\..\..\..\Common\Common.csproj" />
+    <ProjectReference Include="..\..\Core\Core.csproj" />
+    <ProjectReference Include="..\..\DependencyInjection\DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\Common\Common.csproj" />
   </ItemGroup>
 </Project>

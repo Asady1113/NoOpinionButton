@@ -39,7 +39,7 @@ namespace Core.Application.Services
             var savedMessage = await _messageRepository.SaveAsync(message);
 
             // 参加者にメッセージを配信
-            await _broadcastClient.BroadcastMessageAsync(request.MeetingId, savedMessage);
+          //  await _broadcastClient.BroadcastMessageAsync(request.MeetingId, savedMessage);
 
             // レスポンス作成（Successフラグなし）
             return new PostMessageServiceResponse

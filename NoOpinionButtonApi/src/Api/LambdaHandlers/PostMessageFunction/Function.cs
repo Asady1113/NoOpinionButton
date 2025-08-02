@@ -37,10 +37,10 @@ public class Function
         {
             switch ((request.Path, request.HttpMethod))
             {
-                case ("/messages", "POST"):
+                case ("/message", "POST"):
                     PostMessageResponse responseBody = await HandlePostMessage(request);
                     return ApiResponseFactory.Ok(responseBody);
-                case ("/messages", "OPTIONS"):
+                case ("/message", "OPTIONS"):
                     return ApiResponseFactory.Options();
                 default:
                     return ApiResponseFactory.NotFound("Requested endpoint was not found.");

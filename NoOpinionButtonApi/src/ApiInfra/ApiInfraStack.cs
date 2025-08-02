@@ -57,26 +57,35 @@ namespace ApiInfra
                 RemovalPolicy = RemovalPolicy.DESTROY
             });
 
+            var webSocketConnectionTable = new Table(this, "WebSocketConnection", new TableProps {
+                TableName = "WebSocketConnection",
+                // 主キーを設定
+                PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
+                BillingMode = BillingMode.PAY_PER_REQUEST, // 従量課金
+                // TODO: 本番環境では、データを消したくないので RETAINにする
+                RemovalPolicy = RemovalPolicy.DESTROY
+            });
+
             // Lambda関数の定義
             var signInLambda = new Function(this, "SignInFunction", new FunctionProps
             {
+                FunctionName = "NoOpinionButton-SignInFunction",
                 Runtime = Runtime.DOTNET_8,  // .NET 8 を使用（Lambda関数をC#で記述）
                 // cdk.jsonから見たパス
-                Code = Code.FromAsset("src/Api/LambdaHandlers/SignInFunction/src/SignInFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
+                Code = Code.FromAsset("src/Api/LambdaHandlers/SignInFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
                 Handler = "SignInFunction::SignInFunction.Function::FunctionHandler",  // C#のエントリーポイント
                 Environment = new Dictionary<string, string>
                 {
                     // Lambda関数内で参照する環境変数
                     { "ADMINISTRATOR_TABLE_NAME", "Administrator" },
                     { "MEETING_TABLE_NAME", "Meeting" },
-                    { "PARTICIPANT_TABLE_NAME", "Participant" },
-                    { "MESSAGE_TABLE_NAME", "Message" },
-                    { "BUTTONACTIVITY_TABLE_NAME", "ButtonActivity" }
+                    { "PARTICIPANT_TABLE_NAME", "Participant" }
                 }
             });
 
             var postMessageLambda = new Function(this, "PostMessageFunction", new FunctionProps
             {
+                FunctionName = "NoOpinionButton-PostMessageFunction",
                 Runtime = Runtime.DOTNET_8,  // .NET 8 を使用（Lambda関数をC#で記述）
                 // cdk.jsonから見たパス
                 Code = Code.FromAsset("src/Api/LambdaHandlers/PostMessageFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
@@ -88,7 +97,8 @@ namespace ApiInfra
                     { "MEETING_TABLE_NAME", "Meeting" },
                     { "PARTICIPANT_TABLE_NAME", "Participant" },
                     { "MESSAGE_TABLE_NAME", "Message" },
-                    { "BUTTONACTIVITY_TABLE_NAME", "ButtonActivity" }
+                    { "BUTTONACTIVITY_TABLE_NAME", "ButtonActivity" },
+                    { "WEBSOCKETCONNECTION_TABLE_NAME", "WebSocketConnection"}
                 }
             });
 
@@ -96,8 +106,6 @@ namespace ApiInfra
             administratorTable.GrantReadWriteData(signInLambda);
             meetingTable.GrantReadWriteData(signInLambda);
             participantTable.GrantReadWriteData(signInLambda);
-            messageTable.GrantReadWriteData(signInLambda);
-            buttonActivityTable.GrantReadWriteData(signInLambda);
 
             // PostMessageFunction にもDynamoDBアクセス権を付与
             administratorTable.GrantReadWriteData(postMessageLambda);
@@ -105,6 +113,7 @@ namespace ApiInfra
             participantTable.GrantReadWriteData(postMessageLambda);
             messageTable.GrantReadWriteData(postMessageLambda);
             buttonActivityTable.GrantReadWriteData(postMessageLambda);
+            webSocketConnectionTable.GrantReadWriteData(postMessageLambda);
 
             // RestApi（REST API v1）を作成
             var api = new RestApi(this, "NoOpinionButtonApi", new RestApiProps
@@ -123,7 +132,7 @@ namespace ApiInfra
             signinResource.AddMethod("OPTIONS", new LambdaIntegration(signInLambda)); // CORS対応
 
             // messages エンドポイント
-            var messagesResource = api.Root.AddResource("messages");
+            var messagesResource = api.Root.AddResource("message");
             messagesResource.AddMethod("POST", new LambdaIntegration(postMessageLambda));
             messagesResource.AddMethod("OPTIONS", new LambdaIntegration(postMessageLambda)); // CORS対応
         }
