@@ -24,3 +24,18 @@ Resources:
             RestApiId: !Ref NoOpinionButtonApi
             Path: /signin
             Method: ANY
+  PostMessageFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: PostMessageFunction::PostMessageFunction.Function::FunctionHandler
+      Runtime: dotnet8
+      CodeUri: src/Api/LambdaHandlers/PostMessageFunction
+      MemorySize: 128
+      Timeout: 5
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NoOpinionButtonApi
+            Path: /messages
+            Method: ANY

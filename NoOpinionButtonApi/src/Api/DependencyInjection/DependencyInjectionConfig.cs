@@ -3,6 +3,7 @@ using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Core.Application;
+using Core.Application.Ports;
 using Core.Application.Services;
 using Core.Domain.Ports;
 using Infrastructure.Repository;
@@ -32,7 +33,7 @@ public static class DependencyInjectionConfig
 
         // Application Services
         services.AddTransient<ISignInService, SignInService>();
-        services.AddTransient<ChatService>();
+        services.AddTransient<IMessageService, MessageService>();
 
         // Domain Ports -> Infrastructure implementations
         services.AddTransient<IParticipantRepository, ParticipantRepository>();

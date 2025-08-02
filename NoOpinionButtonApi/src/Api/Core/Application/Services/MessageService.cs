@@ -1,17 +1,18 @@
 using Core.Application.DTOs.Requests;
 using Core.Application.DTOs.Responses;
+using Core.Application.Ports;
 using Core.Domain.Entities;
 using Core.Domain.Ports;
 using Common.Utilities;
 
 namespace Core.Application.Services
 {
-    public class ChatService
+    public class MessageService : IMessageService
     {
         private readonly IMessageRepository _messageRepository;
         private readonly IMessageBroadcastClient _broadcastClient;
 
-        public ChatService(IMessageRepository messageRepository, IMessageBroadcastClient broadcastClient)
+        public MessageService(IMessageRepository messageRepository, IMessageBroadcastClient broadcastClient)
         {
             _messageRepository = messageRepository;
             _broadcastClient = broadcastClient;
@@ -22,7 +23,7 @@ namespace Core.Application.Services
         /// </summary>
         /// <param name="request">メッセージ送信リクエスト</param>
         /// <returns>送信結果</returns>
-        public async Task<PostMessageResponse> PostMessageAsync(PostMessageRequest request)
+        public async Task<PostMessageServiceResponse> PostMessageAsync(PostMessageServiceRequest request)
         {
             // メッセージエンティティ作成
             var message = new Message
@@ -41,7 +42,7 @@ namespace Core.Application.Services
             await _broadcastClient.BroadcastMessageAsync(request.MeetingId, savedMessage);
 
             // レスポンス作成（Successフラグなし）
-            return new PostMessageResponse
+            return new PostMessageServiceResponse
             {
                 MessageId = savedMessage.Id
             };

@@ -75,12 +75,36 @@ namespace ApiInfra
                 }
             });
 
+            var postMessageLambda = new Function(this, "PostMessageFunction", new FunctionProps
+            {
+                Runtime = Runtime.DOTNET_8,  // .NET 8 を使用（Lambda関数をC#で記述）
+                // cdk.jsonから見たパス
+                Code = Code.FromAsset("src/Api/LambdaHandlers/PostMessageFunction/bin/Release/net8.0"), // C#コードがあるディレクトリを指定
+                Handler = "PostMessageFunction::PostMessageFunction.Function::FunctionHandler",  // C#のエントリーポイント
+                Environment = new Dictionary<string, string>
+                {
+                    // Lambda関数内で参照する環境変数
+                    { "ADMINISTRATOR_TABLE_NAME", "Administrator" },
+                    { "MEETING_TABLE_NAME", "Meeting" },
+                    { "PARTICIPANT_TABLE_NAME", "Participant" },
+                    { "MESSAGE_TABLE_NAME", "Message" },
+                    { "BUTTONACTIVITY_TABLE_NAME", "ButtonActivity" }
+                }
+            });
+
             // Lambda関数にDynamoDBアクセス権を付与（データの取得・挿入）
             administratorTable.GrantReadWriteData(signInLambda);
             meetingTable.GrantReadWriteData(signInLambda);
             participantTable.GrantReadWriteData(signInLambda);
             messageTable.GrantReadWriteData(signInLambda);
             buttonActivityTable.GrantReadWriteData(signInLambda);
+
+            // PostMessageFunction にもDynamoDBアクセス権を付与
+            administratorTable.GrantReadWriteData(postMessageLambda);
+            meetingTable.GrantReadWriteData(postMessageLambda);
+            participantTable.GrantReadWriteData(postMessageLambda);
+            messageTable.GrantReadWriteData(postMessageLambda);
+            buttonActivityTable.GrantReadWriteData(postMessageLambda);
 
             // RestApi（REST API v1）を作成
             var api = new RestApi(this, "NoOpinionButtonApi", new RestApiProps
@@ -93,10 +117,15 @@ namespace ApiInfra
                 }
             });
 
-            // ANY /{proxy+} を1つのLambdaに紐付ける
-            var proxyResource = api.Root.AddResource("{proxy+}"); // プレースホルダ付きのルート
-            proxyResource.AddMethod("ANY", new LambdaIntegration(signInLambda));
-            // TODO; どんどんエンドポイントを追加していく
+            // signin エンドポイント
+            var signinResource = api.Root.AddResource("signin");
+            signinResource.AddMethod("POST", new LambdaIntegration(signInLambda));
+            signinResource.AddMethod("OPTIONS", new LambdaIntegration(signInLambda)); // CORS対応
+
+            // messages エンドポイント
+            var messagesResource = api.Root.AddResource("messages");
+            messagesResource.AddMethod("POST", new LambdaIntegration(postMessageLambda));
+            messagesResource.AddMethod("OPTIONS", new LambdaIntegration(postMessageLambda)); // CORS対応
         }
     }
 }

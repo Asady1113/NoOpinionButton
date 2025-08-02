@@ -1,6 +1,6 @@
 namespace Core.Application.DTOs.Responses
 {
-    public class PostMessageResponse
+    public class PostMessageServiceResponse
     {
         /// <summary>
         /// メッセージID

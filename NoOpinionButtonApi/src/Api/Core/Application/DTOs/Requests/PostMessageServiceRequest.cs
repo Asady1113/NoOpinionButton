@@ -1,6 +1,6 @@
 namespace Core.Application.DTOs.Requests
 {
-    public class PostMessageRequest
+    public class PostMessageServiceRequest
     {
         /// <summary>
         /// 会議ID

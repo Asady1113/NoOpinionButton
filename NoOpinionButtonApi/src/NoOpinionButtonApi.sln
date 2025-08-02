@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Tests", "Api
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LambdaHandlers.Tests", "ApiTests\LambdaHandlers.Tests\LambdaHandlers.Tests.csproj", "{8C7A2F4D-9E6B-4A1C-8D2E-3F5B6C9A8E7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostMessageFunction", "Api\LambdaHandlers\PostMessageFunction\PostMessageFunction.csproj", "{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -137,6 +139,18 @@ Global
 		{6B30A38B-5760-49C6-9EAD-3D8B95CEF789}.Release|x64.Build.0 = Release|Any CPU
 		{6B30A38B-5760-49C6-9EAD-3D8B95CEF789}.Release|x86.ActiveCfg = Release|Any CPU
 		{6B30A38B-5760-49C6-9EAD-3D8B95CEF789}.Release|x86.Build.0 = Release|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Debug|x64.Build.0 = Debug|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Debug|x86.Build.0 = Debug|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Release|x64.ActiveCfg = Release|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Release|x64.Build.0 = Release|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Release|x86.ActiveCfg = Release|Any CPU
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,5 +166,6 @@ Global
 		{DD57D50D-E191-4245-A89D-99ABB22EFA76} = {D82C56D6-B2CD-F611-9E31-04638F7EC30E}
 		{2244D56B-17A2-4022-9E1A-1F05F6CF6F51} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{6B30A38B-5760-49C6-9EAD-3D8B95CEF789} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{FE6CB6FC-EF75-4B16-AE4B-A8958EADF60A} = {63B35DAB-F38B-04EC-B5B8-2D184D38BA29}
 	EndGlobalSection
 EndGlobal
