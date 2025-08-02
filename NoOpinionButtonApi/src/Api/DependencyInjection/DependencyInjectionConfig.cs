@@ -38,7 +38,7 @@ public static class DependencyInjectionConfig
         services.AddTransient<IParticipantRepository, ParticipantRepository>();
         services.AddTransient<IMeetingRepository, MeetingRepository>();
         services.AddTransient<IMessageRepository, MessageRepository>();
-        services.AddTransient<IMessageNotificationClient, MessageNotificationClient>();
+        services.AddTransient<IMessageBroadcastClient, MessageBroadcastClient>();
 
         // Infrastructure internal interfaces
         services.AddTransient<IWebSocketConnectionRepository, WebSocketConnectionRepository>();
