@@ -54,13 +54,21 @@ sam local start-api
 
 ### API（NoOpinionButtonApi/）
 - `src/Api/Core/` - ドメインロジック、サービス
-  - `Entities/` - Meeting, Participantエンティティ
-  - `Services/` - SignInService（認証ロジック）
-  - `Repositories/` - リポジトリインターフェース
+  - `Application/Ports/` - サービスインターフェース
+  - `Application/Services/` - SignInService, MessageService, ConnectionService, BroadcastService
+  - `Application/DTOs/` - リクエスト/レスポンスDTO
+  - `Domain/Entities/` - Meeting, Participant, Message, Connectionエンティティ
+  - `Domain/Ports/` - リポジトリインターフェース
 - `src/Api/Infrastructure/` - リポジトリ実装
-  - `Repositories/` - DynamoDBリポジトリ
+  - `Repositories/` - DynamoDBリポジトリ, BroadcastRepository
 - `src/Api/LambdaHandlers/` - Lambda関数
-  - `SignInFunction.cs` - サインインAPI
+  - `SignInFunction/` - サインインAPI
+  - `PostMessageFunction/` - メッセージ送信API
+  - `WebSocketConnectFunction/` - WebSocket接続管理
+  - `WebSocketDisconnectFunction/` - WebSocket切断管理
+  - `MessageBroadcastFunction/` - メッセージリアルタイム配信
+- `src/Api/DependencyInjection/` - DI設定
+- `src/Api/Common/` - ユーティリティクラス
 - `src/ApiInfra/` - CDKインフラ定義
 - `tests/` - 単体テスト（20+テストケース）
 
@@ -87,6 +95,16 @@ sam local start-api
   - 認証ロジック・エラーハンドリング
   - 司会者/参加者自動判定・ページ遷移
 
+- **メッセージ機能**: バックエンド実装完了
+  - メッセージ送信API（PostMessageFunction）
+  - メッセージリアルタイム配信（MessageBroadcastFunction + DynamoDB Streams）
+  - クリーンアーキテクチャでのメッセージ処理サービス
+
+- **WebSocket接続管理**: バックエンド実装完了
+  - WebSocket接続/切断管理（WebSocketConnect/DisconnectFunction）
+  - ConnectionエンティティとConnectionService
+  - メッセージ一括配信機能（BroadcastService）
+
 ### テスト実装済み
 - **バックエンドテスト**: 20+テストケース
   - Core層（エンティティ・サービス）単体テスト
@@ -97,15 +115,23 @@ sam local start-api
   - コンポーネントテスト（9件）
   - 統合テスト（6件）
 
+### 部分実装済み
+- **メッセージ機能**: バックエンドのみ完了、フロントエンド未実装
+- **WebSocket API**: AWS CDK設定未実装
+- **BroadcastRepository**: スタブ実装、実際WebSocket送信未実装
+
 ### 未実装
 - facilitator.vue（司会者画面）
 - participant.vue（参加者画面）
 - 「意見なし」ボタン機能
-- リアルタイム状態同期
+- フロントエンドのメッセージ機能
 
 ## 開発時の注意点
 - ClaudeCodeは、思考は英語で、会話は日本語で行う
 - ディレクトリ構造等、プロジェクトに変更があった場合、CLAUDE.md、README.md、docs内のドキュメントも更新する
+- アーキテクチャを更新した場合は、architecture.mdを更新する
+- DBに変更がある場合は、database.mdを更新する
 - クリーンアーキテクチャに従って実装
+- XMLドキュメントはインターフェース側に記述し、実装側には< /inheritdoc>を記述する
 - DynamoDBのパーティションキー設計に注意
 - テスト実行: `npm test`（フロント）、`dotnet test`（バック）
