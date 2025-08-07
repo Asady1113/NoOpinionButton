@@ -102,6 +102,30 @@ namespace ApiInfra
                 }
             });
 
+            var webSocketConnectLambda = new Function(this, "WebSocketConnectFunction", new FunctionProps
+            {
+                FunctionName = "NoOpinionButton-WebSocketConnectFunction",
+                Runtime = Runtime.DOTNET_8,
+                Code = Code.FromAsset("src/Api/LambdaHandlers/WebSocketConnectFunction/bin/Release/net8.0"),
+                Handler = "WebSocketConnectFunction::WebSocketConnectFunction.Function::FunctionHandler",
+                Environment = new Dictionary<string, string>
+                {
+                    { "WEBSOCKETCONNECTION_TABLE_NAME", "WebSocketConnection"}
+                }
+            });
+
+            var webSocketDisconnectLambda = new Function(this, "WebSocketDisconnectFunction", new FunctionProps
+            {
+                FunctionName = "NoOpinionButton-WebSocketDisconnectFunction",
+                Runtime = Runtime.DOTNET_8,
+                Code = Code.FromAsset("src/Api/LambdaHandlers/WebSocketDisconnectFunction/bin/Release/net8.0"),
+                Handler = "WebSocketDisconnectFunction::WebSocketDisconnectFunction.Function::FunctionHandler",
+                Environment = new Dictionary<string, string>
+                {
+                    { "WEBSOCKETCONNECTION_TABLE_NAME", "WebSocketConnection"}
+                }
+            });
+
             // Lambda関数にDynamoDBアクセス権を付与（データの取得・挿入）
             administratorTable.GrantReadWriteData(signInLambda);
             meetingTable.GrantReadWriteData(signInLambda);
@@ -114,6 +138,10 @@ namespace ApiInfra
             messageTable.GrantReadWriteData(postMessageLambda);
             buttonActivityTable.GrantReadWriteData(postMessageLambda);
             webSocketConnectionTable.GrantReadWriteData(postMessageLambda);
+
+            // WebSocketConnect/DisconnectFunction にDynamoDBアクセス権を付与
+            webSocketConnectionTable.GrantReadWriteData(webSocketConnectLambda);
+            webSocketConnectionTable.GrantReadWriteData(webSocketDisconnectLambda);
 
             // RestApi（REST API v1）を作成
             var api = new RestApi(this, "NoOpinionButtonApi", new RestApiProps
@@ -135,6 +163,13 @@ namespace ApiInfra
             var messagesResource = api.Root.AddResource("message");
             messagesResource.AddMethod("POST", new LambdaIntegration(postMessageLambda));
             messagesResource.AddMethod("OPTIONS", new LambdaIntegration(postMessageLambda)); // CORS対応
+
+            // WebSocket接続管理エンドポイント
+            var wsConnectResource = api.Root.AddResource("ws-connect");
+            wsConnectResource.AddMethod("POST", new LambdaIntegration(webSocketConnectLambda));
+            
+            var wsDisconnectResource = api.Root.AddResource("ws-disconnect");
+            wsDisconnectResource.AddMethod("POST", new LambdaIntegration(webSocketDisconnectLambda));
         }
     }
 }

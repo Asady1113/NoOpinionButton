@@ -1,32 +1,52 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
+using Core.Domain.Entities;
+using Core.Domain.Ports;
 using Infrastructure.Entities;
-using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repository;
 
 /// <summary>
-/// WebSocket接続リポジトリのDynamoDB実装
+/// 接続リポジトリのDynamoDB実装
 /// </summary>
-public class WebSocketConnectionRepository : IWebSocketConnectionRepository
+public class ConnectionRepository : IConnectionRepository
 {
     private readonly IDynamoDBContext _context;
 
-    public WebSocketConnectionRepository(IDynamoDBContext context)
+    public ConnectionRepository(IDynamoDBContext context)
     {
         _context = context;
     }
 
     /// <summary>
-    /// WebSocket接続を保存する
+    /// 接続情報を保存する
     /// </summary>
-    /// <param name="connectionEntity">保存する接続情報</param>
+    /// <param name="connection">保存する接続情報</param>
     /// <returns>保存された接続情報</returns>
-    public async Task<WebSocketConnectionEntity> SaveAsync(WebSocketConnectionEntity connectionEntity)
+    public async Task<Connection> SaveAsync(Connection connection)
     {
+        // ドメインエンティティをDynamoDBエンティティに変換
+        var connectionEntity = new WebSocketConnectionEntity
+        {
+            ConnectionId = connection.Id,
+            ParticipantId = connection.ParticipantId,
+            MeetingId = connection.MeetingId,
+            ConnectedAt = connection.ConnectedAt,
+            IsActive = connection.IsActive
+        };
+
         // DynamoDBに保存
         await _context.SaveAsync(connectionEntity);
-        return connectionEntity;
+
+        // 保存されたエンティティをドメインエンティティに変換して返す
+        return new Connection
+        {
+            Id = connectionEntity.ConnectionId,
+            ParticipantId = connectionEntity.ParticipantId,
+            MeetingId = connectionEntity.MeetingId,
+            ConnectedAt = connectionEntity.ConnectedAt,
+            IsActive = connectionEntity.IsActive
+        };
     }
 
     /// <summary>
@@ -34,18 +54,14 @@ public class WebSocketConnectionRepository : IWebSocketConnectionRepository
     /// </summary>
     /// <param name="meetingId">会議ID</param>
     /// <returns>有効な接続一覧</returns>
-    public async Task<IEnumerable<WebSocketConnectionEntity>> GetActiveConnectionsByMeetingIdAsync(string meetingId)
+    public async Task<IEnumerable<Connection>> GetActiveConnectionsByMeetingIdAsync(string meetingId)
     {
-        // MeetingIdによるクエリ条件を設定
         var queryConfig = new QueryOperationConfig
         {
-            // DynamoDBのセカンダリインデックスの識別名
             IndexName = "MeetingId-Index",
             KeyExpression = new Expression
             {
-                // MeetingIdとIsActiveの両方が一致する条件 を指定
                 ExpressionStatement = "MeetingId = :meetingId AND IsActive = :isActive",
-                // プレースホルダーの実際の値を設定
                 ExpressionAttributeValues = new Dictionary<string, DynamoDBEntry>
                 {
                     { ":meetingId", meetingId },
@@ -54,11 +70,18 @@ public class WebSocketConnectionRepository : IWebSocketConnectionRepository
             }
         };
 
-        // クエリ実行
-        // DynamoDBのテーブルに対して非同期でクエリを実行する
         var search = _context.FromQueryAsync<WebSocketConnectionEntity>(queryConfig);
-        // クエリ結果をすべて取得
-        return await search.GetRemainingAsync();
+        var connectionEntities = await search.GetRemainingAsync();
+
+        // DynamoDBエンティティをドメインエンティティに変換
+        return connectionEntities.Select(entity => new Connection
+        {
+            Id = entity.ConnectionId,
+            ParticipantId = entity.ParticipantId,
+            MeetingId = entity.MeetingId,
+            ConnectedAt = entity.ConnectedAt,
+            IsActive = entity.IsActive
+        });
     }
 
     /// <summary>
@@ -70,16 +93,12 @@ public class WebSocketConnectionRepository : IWebSocketConnectionRepository
     {
         try
         {
-            // 既存の接続を取得
             var connectionEntity = await _context.LoadAsync<WebSocketConnectionEntity>(connectionId);
             
             if (connectionEntity == null)
                 return false;
 
-            // IsActiveをfalseに更新
             connectionEntity.IsActive = false;
-            
-            // 更新を保存
             await _context.SaveAsync(connectionEntity);
             
             return true;

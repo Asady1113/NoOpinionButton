@@ -7,8 +7,6 @@ using Core.Application.Ports;
 using Core.Application.Services;
 using Core.Domain.Ports;
 using Infrastructure.Repository;
-using Infrastructure.Clients;
-using Infrastructure.Interfaces;
 
 namespace DependencyInjection;
 
@@ -34,15 +32,16 @@ public static class DependencyInjectionConfig
         // Application Services
         services.AddTransient<ISignInService, SignInService>();
         services.AddTransient<IMessageService, MessageService>();
+        services.AddTransient<IConnectionService, ConnectionService>();
+        services.AddTransient<IBroadcastService, BroadcastService>();
 
         // Domain Ports -> Infrastructure implementations
         services.AddTransient<IParticipantRepository, ParticipantRepository>();
         services.AddTransient<IMeetingRepository, MeetingRepository>();
         services.AddTransient<IMessageRepository, MessageRepository>();
-        services.AddTransient<IMessageBroadcastClient, MessageBroadcastClient>();
+        services.AddTransient<IConnectionRepository, ConnectionRepository>();
+        services.AddTransient<IBroadcastRepository, BroadcastRepository>();
 
-        // Infrastructure internal interfaces
-        services.AddTransient<IWebSocketConnectionRepository, WebSocketConnectionRepository>();
 
         return services.BuildServiceProvider();
     }

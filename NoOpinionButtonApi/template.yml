@@ -39,3 +39,33 @@ Resources:
             RestApiId: !Ref NoOpinionButtonApi
             Path: /message
             Method: ANY
+  WebSocketConnectFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: WebSocketConnectFunction::WebSocketConnectFunction.Function::FunctionHandler
+      Runtime: dotnet8
+      CodeUri: src/Api/LambdaHandlers/WebSocketConnectFunction
+      MemorySize: 128
+      Timeout: 5
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NoOpinionButtonApi
+            Path: /ws-connect
+            Method: POST
+  WebSocketDisconnectFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: WebSocketDisconnectFunction::WebSocketDisconnectFunction.Function::FunctionHandler
+      Runtime: dotnet8
+      CodeUri: src/Api/LambdaHandlers/WebSocketDisconnectFunction
+      MemorySize: 128
+      Timeout: 5
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NoOpinionButtonApi
+            Path: /ws-disconnect
+            Method: POST
