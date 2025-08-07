@@ -7,12 +7,7 @@ namespace Infrastructure.Repository;
 /// </summary>
 public class BroadcastRepository : IBroadcastRepository
 {
-    /// <summary>
-    /// 接続ID宛にメッセージを配信する
-    /// </summary>
-    /// <param name="connectionId">接続ID</param>
-    /// <param name="message">配信するメッセージ</param>
-    /// <returns>配信成功可否</returns>
+    /// <inheritdoc/>
     public async Task<bool> BroadcastToConnectionAsync(string connectionId, string message)
     {
         // 実際のWebSocket送信は後で実装（現在はスタブ）
@@ -27,12 +22,7 @@ public class BroadcastRepository : IBroadcastRepository
         return true;
     }
 
-    /// <summary>
-    /// 複数の接続ID宛にメッセージを一括配信する
-    /// </summary>
-    /// <param name="connectionIds">接続ID一覧</param>
-    /// <param name="message">配信するメッセージ</param>
-    /// <returns>配信結果（成功した接続数）</returns>
+    /// <inheritdoc/>
     public async Task<int> BroadcastToMultipleConnectionsAsync(IEnumerable<string> connectionIds, string message)
     {
         // 実際のWebSocket送信は後で実装（現在はスタブ）

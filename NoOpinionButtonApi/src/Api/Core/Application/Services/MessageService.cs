@@ -24,11 +24,7 @@ namespace Core.Application.Services
             _broadcastRepository = broadcastRepository;
         }
 
-        /// <summary>
-        /// メッセージを送信する
-        /// </summary>
-        /// <param name="request">メッセージ送信リクエスト</param>
-        /// <returns>送信結果</returns>
+        /// <inheritdoc/>
         public async Task<PostMessageServiceResponse> PostMessageAsync(PostMessageServiceRequest request)
         {
             // メッセージエンティティ作成

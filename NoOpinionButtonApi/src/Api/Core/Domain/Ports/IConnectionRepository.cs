@@ -8,7 +8,7 @@ namespace Core.Domain.Ports;
 public interface IConnectionRepository
 {
     /// <summary>
-    /// 接続情報を保存する
+    /// WebSocket接続を保存する
     /// </summary>
     /// <param name="connection">保存する接続情報</param>
     /// <returns>保存された接続情報</returns>

@@ -17,11 +17,7 @@ public class MessageRepository : IMessageRepository
         _context = context;
     }
 
-    /// <summary>
-    /// メッセージを保存する
-    /// </summary>
-    /// <param name="message">保存するメッセージ</param>
-    /// <returns>保存されたメッセージ</returns>
+    /// <inheritdoc/>
     public async Task<Message> SaveAsync(Message message)
     {
         // ドメインエンティティをDynamoDBエンティティに変換
