@@ -24,6 +24,8 @@ public class Function
     {
         try
         {
+            // WebSocket API が発行するWebSocketの接続IDを取得
+            // クライアントが接続したらこのLambdaが呼ばれることになってる
             var connectionId = request.RequestContext.ConnectionId;
             context.Logger.LogLine($"WebSocket Connect - ConnectionId: {connectionId}");
             

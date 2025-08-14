@@ -20,7 +20,7 @@ sam local start-api
 ### デプロイ手順
 ```bash
 cd src
-dotnet build
+dotnet publish -c Release -p:PublishReadyToRun=false
 cdk bootstrap  # 初回のみ
 cdk diff       # 変更内容確認
 cdk deploy     # デプロイ実行

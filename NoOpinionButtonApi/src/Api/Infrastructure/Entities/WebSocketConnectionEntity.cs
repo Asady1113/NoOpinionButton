@@ -19,7 +19,6 @@ public class WebSocketConnectionEntity
     /// 参加者ID（外部キー）
     /// </summary>
     [DynamoDBProperty]
-    [DynamoDBGlobalSecondaryIndexHashKey("MeetingId-Index")]
     public string ParticipantId { get; set; } = string.Empty;
 
     /// <summary>

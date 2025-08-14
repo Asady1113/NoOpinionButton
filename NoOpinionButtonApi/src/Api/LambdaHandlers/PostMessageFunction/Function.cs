@@ -89,7 +89,7 @@ public class Function
     }
 
     /// <summary>
-    /// PostMessageRequest を生成する。
+    /// PostMessageRequestを生成する。
     /// 必須: meetingId, participantId, content (JSON)
     /// </summary>
     /// <param name="body">JSON Body</param>

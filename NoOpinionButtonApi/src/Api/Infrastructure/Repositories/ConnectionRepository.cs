@@ -53,10 +53,17 @@ public class ConnectionRepository : IConnectionRepository
             IndexName = "MeetingId-Index",
             KeyExpression = new Expression
             {
-                ExpressionStatement = "MeetingId = :meetingId AND IsActive = :isActive",
+                ExpressionStatement = "MeetingId = :meetingId",
                 ExpressionAttributeValues = new Dictionary<string, DynamoDBEntry>
                 {
-                    { ":meetingId", meetingId },
+                    { ":meetingId", meetingId }
+                }
+            },
+            FilterExpression = new Expression
+            {
+                ExpressionStatement = "IsActive = :isActive",
+                ExpressionAttributeValues = new Dictionary<string, DynamoDBEntry>
+                {
                     { ":isActive", true }
                 }
             }
