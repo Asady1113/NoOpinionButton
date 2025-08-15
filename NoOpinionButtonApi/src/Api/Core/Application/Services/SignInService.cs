@@ -15,7 +15,7 @@ public class SignInService : ISignInService
         _meetingRepository = meetingRepository;
     }
 
-    // </inheridoc>
+    /// <inheritdoc/>
     public async Task<SignInServiceResponse> SignInAsync(SignInServiceRequest request)
     {
         Meeting meeting = await _meetingRepository.GetMeetingByIdAsync(request.MeetingId);

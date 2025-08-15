@@ -9,6 +9,7 @@
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AWSSDK.ApiGatewayManagementApi" Version="4.0.0.17" />
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.2.1" />
   </ItemGroup>
 

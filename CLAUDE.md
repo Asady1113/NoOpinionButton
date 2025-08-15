@@ -20,6 +20,7 @@
 ```bash
 cd NoOpinionButtonApi
 dotnet build src
+dotnet test  # バックエンドテスト実行
 ```
 
 ### フロントエンド（Nuxt.js）
@@ -27,6 +28,7 @@ dotnet build src
 cd NoOpinionButtonWeb
 npm install
 npm run dev
+npm test     # フロントエンドテスト実行（Vitest）
 ```
 
 ## デプロイ
@@ -52,23 +54,84 @@ sam local start-api
 
 ### API（NoOpinionButtonApi/）
 - `src/Api/Core/` - ドメインロジック、サービス
-- `src/Api/Infrastructure/` - リポジトリ、エンティティ
+  - `Application/Ports/` - サービスインターフェース
+  - `Application/Services/` - SignInService, MessageService, ConnectionService, BroadcastService
+  - `Application/DTOs/` - リクエスト/レスポンスDTO
+  - `Domain/Entities/` - Meeting, Participant, Message, Connectionエンティティ
+  - `Domain/Ports/` - リポジトリインターフェース
+- `src/Api/Infrastructure/` - リポジトリ実装
+  - `Repositories/` - DynamoDBリポジトリ, BroadcastRepository
 - `src/Api/LambdaHandlers/` - Lambda関数
+  - `SignInFunction/` - サインインAPI
+  - `PostMessageFunction/` - メッセージ送信API
+  - `WebSocketConnectFunction/` - WebSocket接続管理
+  - `WebSocketDisconnectFunction/` - WebSocket切断管理
+  - `MessageBroadcastFunction/` - メッセージリアルタイム配信
+- `src/Api/DependencyInjection/` - DI設定
+- `src/Api/Common/` - ユーティリティクラス
 - `src/ApiInfra/` - CDKインフラ定義
+- `tests/` - 単体テスト（20+テストケース）
 
 ### フロントエンド（NoOpinionButtonWeb/）
 - `pages/` - ページコンポーネント
+  - `signin.vue` - サインインページ
 - `composables/` - コンポーザブル関数
+  - `signIn/useSignIn.ts` - 状態管理
+  - `signIn/useSignInApi.ts` - API通信
 - `types/` - TypeScript型定義
+  - `error.ts` - エラー型定義
+- `tests/` - テストスイート（25テストケース）
+  - `composables/` - Composables単体テスト
+  - `pages/` - コンポーネントテスト
+  - `integration/` - 統合テスト
+- `vitest.config.ts` - テスト設定
 
 ## 現在の実装状況
-- サインイン機能実装済み
-- 会議・参加者エンティティ定義済み
-- 基本的なUI画面（signin.vue, participant.vue, facilitator.vue）作成済み
+
+### 完全実装済み
+- **サインイン機能**: フルスタック実装完了
+  - バックエンドAPI（.NET Core + AWS Lambda）
+  - フロントエンドUI（Nuxt.js + Vue.js）
+  - 認証ロジック・エラーハンドリング
+  - 司会者/参加者自動判定・ページ遷移
+
+- **メッセージ機能**: バックエンド実装完了
+  - メッセージ送信API（PostMessageFunction）
+  - メッセージリアルタイム配信（MessageBroadcastFunction + DynamoDB Streams）
+  - クリーンアーキテクチャでのメッセージ処理サービス
+
+- **WebSocket接続管理**: バックエンド実装完了
+  - WebSocket接続/切断管理（WebSocketConnect/DisconnectFunction）
+  - ConnectionエンティティとConnectionService
+  - メッセージ一括配信機能（BroadcastService）
+
+### テスト実装済み
+- **バックエンドテスト**: 20+テストケース
+  - Core層（エンティティ・サービス）単体テスト
+  - Infrastructure層（リポジトリ）単体テスト
+  - LambdaHandlers層（API）単体テスト
+- **フロントエンドテスト**: 25テストケース（Vitest）
+  - Composables単体テスト（10件）
+  - コンポーネントテスト（9件）
+  - 統合テスト（6件）
+
+### 部分実装済み
+- **メッセージ機能**: バックエンドのみ完了、フロントエンド未実装
+- **WebSocket API**: AWS CDK設定未実装
+- **BroadcastRepository**: スタブ実装、実際WebSocket送信未実装
+
+### 未実装
+- facilitator.vue（司会者画面）
+- participant.vue（参加者画面）
+- 「意見なし」ボタン機能
+- フロントエンドのメッセージ機能
 
 ## 開発時の注意点
 - ClaudeCodeは、思考は英語で、会話は日本語で行う
+- ディレクトリ構造等、プロジェクトに変更があった場合、CLAUDE.md、README.md、docs内のドキュメントも更新する
+- アーキテクチャを更新した場合は、architecture.mdを更新する
+- DBに変更がある場合は、database.mdを更新する
 - クリーンアーキテクチャに従って実装
+- XMLドキュメントはインターフェース側に記述し、実装側には< /inheritdoc>を記述する
 - DynamoDBのパーティションキー設計に注意
-- CORS設定が必要（Tips/CORS.md参照）
-- 環境変数の設定（Tips/env.md参照）
+- テスト実行: `npm test`（フロント）、`dotnet test`（バック）

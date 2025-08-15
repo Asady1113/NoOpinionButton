@@ -14,7 +14,7 @@ public class ParticipantRepository : IParticipantRepository
         _context = context;
     }
 
-    // </inheridoc>
+    /// <inheritdoc/>
     public async Task<Participant> SaveParticipantAsync(string id, string meetingId)
     {
         var entity = new ParticipantEntity
