@@ -29,13 +29,12 @@ public class SignInServiceTests
             Password = "facilitator-password"
         };
 
-        var meeting = new Meeting
-        {
-            Id = "meeting123",
-            Name = "テスト会議",
-            FacilitatorPassword = "facilitator-password",
-            ParticipantPassword = "participant-password"
-        };
+        var meeting = new Meeting(
+            "meeting123",
+            "テスト会議",
+            "facilitator-password",
+            "participant-password"
+        );
 
         _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync("meeting123"))
             .ReturnsAsync(meeting);
@@ -63,19 +62,19 @@ public class SignInServiceTests
             Password = "participant-password"
         };
 
-        var meeting = new Meeting
-        {
-            Id = "meeting123",
-            Name = "テスト会議",
-            FacilitatorPassword = "facilitator-password",
-            ParticipantPassword = "participant-password"
-        };
+        var meeting = new Meeting(
+            "meeting123",
+            "テスト会議",
+            "facilitator-password",
+            "participant-password"
+        );
 
-        var participant = new Participant
-        {
-            Id = "participant123",
-            MeetingId = "meeting123"
-        };
+        var participant = new Participant(
+            "participant123",
+            "未設定",
+            "meeting123",
+            0
+        );
 
         _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync("meeting123"))
             .ReturnsAsync(meeting);
@@ -105,13 +104,12 @@ public class SignInServiceTests
             Password = "invalid-password"
         };
 
-        var meeting = new Meeting
-        {
-            Id = "meeting123",
-            Name = "テスト会議",
-            FacilitatorPassword = "facilitator-password",
-            ParticipantPassword = "participant-password"
-        };
+        var meeting = new Meeting(
+            "meeting123",
+            "テスト会議",
+            "facilitator-password",
+            "participant-password"
+        );
 
         _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync("meeting123"))
             .ReturnsAsync(meeting);
@@ -157,13 +155,12 @@ public class SignInServiceTests
             Password = "participant-password"
         };
 
-        var meeting = new Meeting
-        {
-            Id = "meeting123",
-            Name = "テスト会議",
-            FacilitatorPassword = "facilitator-password",
-            ParticipantPassword = "participant-password"
-        };
+        var meeting = new Meeting(
+            "meeting123",
+            "テスト会議",
+            "facilitator-password",
+            "participant-password"
+        );
 
         _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync("meeting123"))
             .ReturnsAsync(meeting);

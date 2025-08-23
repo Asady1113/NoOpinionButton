@@ -35,14 +35,13 @@ public class ConnectionRepository : IConnectionRepository
         await _context.SaveAsync(connectionEntity);
 
         // 保存されたエンティティをドメインエンティティに変換して返す
-        return new Connection
-        {
-            Id = connectionEntity.ConnectionId,
-            ParticipantId = connectionEntity.ParticipantId,
-            MeetingId = connectionEntity.MeetingId,
-            ConnectedAt = connectionEntity.ConnectedAt,
-            IsActive = connectionEntity.IsActive
-        };
+        return new Connection(
+            connectionEntity.ConnectionId,
+            connectionEntity.ParticipantId,
+            connectionEntity.MeetingId,
+            connectionEntity.ConnectedAt,
+            connectionEntity.IsActive
+        );
     }
 
     /// <inheritdoc/>
@@ -73,14 +72,13 @@ public class ConnectionRepository : IConnectionRepository
         var connectionEntities = await search.GetRemainingAsync();
 
         // DynamoDBエンティティをドメインエンティティに変換
-        return connectionEntities.Select(entity => new Connection
-        {
-            Id = entity.ConnectionId,
-            ParticipantId = entity.ParticipantId,
-            MeetingId = entity.MeetingId,
-            ConnectedAt = entity.ConnectedAt,
-            IsActive = entity.IsActive
-        });
+        return connectionEntities.Select(entity => new Connection(
+            entity.ConnectionId,
+            entity.ParticipantId,
+            entity.MeetingId,
+            entity.ConnectedAt,
+            entity.IsActive
+        ));
     }
 
     /// <inheritdoc/>

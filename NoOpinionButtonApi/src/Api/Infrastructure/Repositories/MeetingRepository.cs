@@ -24,13 +24,12 @@ public class MeetingRepository : IMeetingRepository
             throw new KeyNotFoundException($"Meeting with Id '{id}' was not found.");
         }
 
-        var meeting = new Meeting
-        {
-            Id = meetingEntity.Id,
-            Name = meetingEntity.Name,
-            FacilitatorPassword = meetingEntity.FacilitatorPassword,
-            ParticipantPassword = meetingEntity.ParticipantPassword,
-        };
+        var meeting = new Meeting(
+            meetingEntity.Id,
+            meetingEntity.Name,
+            meetingEntity.FacilitatorPassword,
+            meetingEntity.ParticipantPassword
+        );
 
         return meeting;
     }

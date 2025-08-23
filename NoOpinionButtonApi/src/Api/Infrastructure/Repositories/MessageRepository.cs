@@ -37,16 +37,15 @@ public class MessageRepository : IMessageRepository
         await _context.SaveAsync(messageEntity);
 
         // 保存後のエンティティをドメインエンティティに変換して返却
-        return new Message
-        {
-            Id = messageEntity.Id,
-            MeetingId = messageEntity.MeetingId,
-            ParticipantId = messageEntity.ParticipantId,
-            Content = messageEntity.Content,
-            CreatedAt = messageEntity.CreatedAt,
-            LikeCount = messageEntity.LikeCount,
-            ReportedCount = messageEntity.ReportedCount,
-            IsActive = messageEntity.IsActive
-        };
+        return new Message(
+            messageEntity.Id,
+            messageEntity.MeetingId,
+            messageEntity.ParticipantId,
+            messageEntity.Content,
+            messageEntity.CreatedAt,
+            messageEntity.LikeCount,
+            messageEntity.ReportedCount,
+            messageEntity.IsActive
+        );
     }
 }

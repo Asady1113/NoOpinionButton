@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Api\LambdaHandlers\SignInFunction\src\SignInFunction\SignInFunction.csproj" />
+    <ProjectReference Include="..\..\Api\LambdaHandlers\SignInFunction\SignInFunction.csproj" />
     <ProjectReference Include="..\..\Api\Core\Core.csproj" />
     <ProjectReference Include="..\..\Api\Common\Common.csproj" />
   </ItemGroup>

@@ -3,7 +3,6 @@ using Core.Application.DTOs.Responses;
 using Core.Application.Ports;
 using Core.Domain.Entities;
 using Core.Domain.Ports;
-using Common.Utilities;
 
 namespace Core.Application.Services;
 
@@ -20,14 +19,13 @@ public class ConnectionService : IConnectionService
     public async Task<ConnectServiceResponse> ConnectAsync(ConnectServiceRequest request)
     {
         // 接続エンティティ作成
-        var connection = new Connection
-        {
-            Id = request.ConnectionId,
-            MeetingId = request.MeetingId,
-            ParticipantId = request.ParticipantId,
-            ConnectedAt = DateTime.UtcNow,
-            IsActive = true
-        };
+        var connection = new Connection(
+            request.ConnectionId,
+            request.ParticipantId,
+            request.MeetingId,
+            DateTime.UtcNow,
+            true
+        );
 
         // 接続をDynamoDBに保存
         var savedConnection = await _connectionRepository.SaveAsync(connection);

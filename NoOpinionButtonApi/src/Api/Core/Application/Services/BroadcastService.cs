@@ -20,8 +20,8 @@ public class BroadcastService : IBroadcastService
         // 会議の有効な接続一覧を取得
         var activeConnections = await _connectionRepository.GetActiveConnectionsByMeetingIdAsync(meetingId);
         
-        // 接続IDを抽出
-        var connectionIds = activeConnections.Select(connection => connection.Id);
+        // 接続IDを抽出（暗黙的変換でstringに変換）
+        var connectionIds = activeConnections.Select(connection => (string)connection.Id);
         
         // 一括配信を実行
         await _broadcastRepository.BroadcastToMultipleConnectionsAsync(connectionIds, messageJson);

@@ -54,6 +54,9 @@ public class Function
             var participantId = newImage["ParticipantId"].S;
             var content = newImage["Content"].S;
             var createdAt = DateTime.Parse(newImage["CreatedAt"].S);
+            var likeCount = int.Parse(newImage["LikeCount"].N);
+            var reportedCount = int.Parse(newImage["ReportedCount"].N);
+            var isActive = int.Parse(newImage["IsActive"].N);
 
             context.Logger.LogLine($"Broadcasting message {messageId} to meeting {meetingId}");
             
@@ -64,7 +67,10 @@ public class Function
                 meetingId,
                 participantId,
                 content,
-                createdAt
+                createdAt,
+                likeCount,
+                reportedCount,
+                isActive
             });
 
             // BroadcastServiceを経由してメッセージを配信

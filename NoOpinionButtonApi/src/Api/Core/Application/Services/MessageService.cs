@@ -4,7 +4,6 @@ using Core.Application.Ports;
 using Core.Domain.Entities;
 using Core.Domain.Ports;
 using Common.Utilities;
-using System.Text.Json;
 
 namespace Core.Application.Services
 {
@@ -21,14 +20,13 @@ namespace Core.Application.Services
         public async Task<PostMessageServiceResponse> PostMessageAsync(PostMessageServiceRequest request)
         {
             // メッセージエンティティ作成
-            var message = new Message
-            {
-                Id = IdGenerator.GenerateGuid(),
-                MeetingId = request.MeetingId,
-                ParticipantId = request.ParticipantId,
-                Content = request.Content,
-                CreatedAt = DateTime.UtcNow  // UTC時刻で保存
-            };
+            var message = new Message(
+                IdGenerator.GenerateGuid(),
+                request.MeetingId,
+                request.ParticipantId,
+                request.Content,
+                DateTime.UtcNow
+            );
 
             // データベースに保存
             var savedMessage = await _messageRepository.SaveAsync(message);

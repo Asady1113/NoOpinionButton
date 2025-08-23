@@ -25,11 +25,12 @@ public class ParticipantRepository : IParticipantRepository
 
         await _context.SaveAsync(entity);
 
-        var participant = new Participant
-        {
-            Id = id,
-            MeetingId = meetingId,
-        };
+        var participant = new Participant(
+            id,
+            "未設定", // 名前のデフォルト値（今後のユースケースで更新予定）
+            meetingId,
+            0   // NoOpinionPointのデフォルト値
+        );
         return participant;
     }
 }
