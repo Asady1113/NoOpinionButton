@@ -90,13 +90,12 @@ public class MeetingTests
             "admin123",
             "user456"
         );
-        var inputPassword = "admin123 ";
+        var inputPassword = "admin123 "; // 末尾にスペース
 
-        // Act
-        var result = meeting.VerifyPassword(inputPassword);
-
-        // Assert
-        Assert.Equal(PasswordType.InvalidPassword, result);
+        // Act & Assert
+        // ValueObjectの厳密なバリデーションにより、スペースが含まれるパスワードはArgumentExceptionが発生
+        var exception = Assert.Throws<ArgumentException>(() => meeting.VerifyPassword(inputPassword));
+        Assert.Contains("空白文字を含めることはできません", exception.Message);
     }
 
     [Fact]

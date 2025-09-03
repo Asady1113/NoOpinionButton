@@ -33,15 +33,15 @@ public readonly record struct NoOpinionPoint
 
     /// <summary>
     /// 整数から <see cref="NoOpinionPoint"/> への暗黙的変換
-    /// 例: NoOpinionPoint point = 1; // new NoOpinionPoint(1) と同じ
+    /// 例: NoOpinionPoint point = 1; // new NoOpinionPoint(1) と同じように変換される
     /// </summary>
     /// <param name="value">ポイント値</param>
     public static implicit operator NoOpinionPoint(int value) => new(value);
 
     /// <summary>
     /// <see cref="NoOpinionPoint"/> から整数への暗黙的変換
-    /// 例: NoOpinionPoint point = new(2);
-    /// int i = point; // point.Value が自動的に取り出される
+    /// 例: NoOpinionPoint point = new NoOpinionPoint(2);
+    /// int i = point; // point.Value が自動的に取り出される（変換される）
     /// </summary>
     /// <param name="noOpinionPoint">意見なしポイント</param>
     public static implicit operator int(NoOpinionPoint noOpinionPoint) => noOpinionPoint.Value;

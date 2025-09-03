@@ -1,6 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2;
-using Core.Domain.Entities;
 using Infrastructure.Entities;
 using Infrastructure.Repository;
 using Moq;
