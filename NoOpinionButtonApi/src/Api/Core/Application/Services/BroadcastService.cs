@@ -1,5 +1,6 @@
 using Core.Application.Ports;
 using Core.Domain.Ports;
+using Core.Domain.ValueObjects.Connection;
 
 namespace Core.Application.Services;
 
@@ -21,7 +22,7 @@ public class BroadcastService : IBroadcastService
         var activeConnections = await _connectionRepository.GetActiveConnectionsByMeetingIdAsync(meetingId);
         
         // 接続IDを抽出（暗黙的変換でstringに変換）
-        var connectionIds = activeConnections.Select(connection => (string)connection.Id);
+        var connectionIds = activeConnections.Select(connection => (ConnectionId)connection.Id);
         
         // 一括配信を実行
         await _broadcastRepository.BroadcastToMultipleConnectionsAsync(connectionIds, messageJson);

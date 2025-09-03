@@ -2,6 +2,8 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Core.Domain.Entities;
 using Core.Domain.Ports;
+using Core.Domain.ValueObjects.Connection;
+using Core.Domain.ValueObjects.Meeting;
 using Infrastructure.Entities;
 
 namespace Infrastructure.Repository;
@@ -45,7 +47,7 @@ public class ConnectionRepository : IConnectionRepository
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<Connection>> GetActiveConnectionsByMeetingIdAsync(string meetingId)
+    public async Task<IEnumerable<Connection>> GetActiveConnectionsByMeetingIdAsync(MeetingId meetingId)
     {
         var queryConfig = new QueryOperationConfig
         {
@@ -55,7 +57,7 @@ public class ConnectionRepository : IConnectionRepository
                 ExpressionStatement = "MeetingId = :meetingId",
                 ExpressionAttributeValues = new Dictionary<string, DynamoDBEntry>
                 {
-                    { ":meetingId", meetingId }
+                    { ":meetingId", meetingId.Value }
                 }
             },
             FilterExpression = new Expression
@@ -82,7 +84,7 @@ public class ConnectionRepository : IConnectionRepository
     }
 
     /// <inheritdoc/>
-    public async Task<bool> DeactivateAsync(string connectionId)
+    public async Task<bool> DeactivateAsync(ConnectionId connectionId)
     {
         try
         {

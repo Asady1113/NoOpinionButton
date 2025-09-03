@@ -66,7 +66,7 @@ public class ConnectionServiceTests
             ConnectionId = "connection456"
         };
 
-        _connectionRepositoryMock.Setup(x => x.DeactivateAsync(It.IsAny<string>()))
+        _connectionRepositoryMock.Setup(x => x.DeactivateAsync(It.IsAny<ConnectionId>()))
             .ReturnsAsync(true);
 
         // Act
@@ -104,7 +104,7 @@ public class ConnectionServiceTests
             )
         };
 
-        _connectionRepositoryMock.Setup(x => x.GetActiveConnectionsByMeetingIdAsync(It.IsAny<string>()))
+        _connectionRepositoryMock.Setup(x => x.GetActiveConnectionsByMeetingIdAsync(It.IsAny<MeetingId>()))
             .ReturnsAsync(expectedConnections);
 
         // Act
@@ -152,7 +152,7 @@ public class ConnectionServiceTests
             ConnectionId = "connection456"
         };
 
-        _connectionRepositoryMock.Setup(x => x.DeactivateAsync(It.IsAny<string>()))
+        _connectionRepositoryMock.Setup(x => x.DeactivateAsync(It.IsAny<ConnectionId>()))
             .ThrowsAsync(new TimeoutException("Connection timeout"));
 
         // Act & Assert
@@ -160,7 +160,7 @@ public class ConnectionServiceTests
             _connectionService.DisconnectAsync(request));
 
         Assert.Equal("Connection timeout", exception.Message);
-        _connectionRepositoryMock.Verify(x => x.DeactivateAsync(It.IsAny<string>()), Times.Once);
+        _connectionRepositoryMock.Verify(x => x.DeactivateAsync(It.IsAny<ConnectionId>()), Times.Once);
     }
 
     [Fact]
@@ -169,7 +169,7 @@ public class ConnectionServiceTests
         // Arrange
         var meetingId = "meeting789";
 
-        _connectionRepositoryMock.Setup(x => x.GetActiveConnectionsByMeetingIdAsync(It.IsAny<string>()))
+        _connectionRepositoryMock.Setup(x => x.GetActiveConnectionsByMeetingIdAsync(It.IsAny<MeetingId>()))
             .ThrowsAsync(new ArgumentException("Invalid meeting ID"));
 
         // Act & Assert
@@ -177,6 +177,6 @@ public class ConnectionServiceTests
             _connectionService.GetActiveConnectionsByMeetingIdAsync(meetingId));
 
         Assert.Equal("Invalid meeting ID", exception.Message);
-        _connectionRepositoryMock.Verify(x => x.GetActiveConnectionsByMeetingIdAsync(It.IsAny<string>()), Times.Once);
+        _connectionRepositoryMock.Verify(x => x.GetActiveConnectionsByMeetingIdAsync(It.IsAny<MeetingId>()), Times.Once);
     }
 }

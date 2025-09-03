@@ -1,6 +1,7 @@
 using Amazon.ApiGatewayManagementApi;
 using Amazon.ApiGatewayManagementApi.Model;
 using Core.Domain.Ports;
+using Core.Domain.ValueObjects.Connection;
 using System.Text;
 
 namespace Infrastructure.Repository;
@@ -42,7 +43,7 @@ public class BroadcastRepository : IBroadcastRepository, IDisposable
     }
 
     /// <inheritdoc/>
-    public async Task<bool> BroadcastToConnectionAsync(string connectionId, string message)
+    public async Task<bool> BroadcastToConnectionAsync(ConnectionId connectionId, string message)
     {
         try
         {
@@ -81,7 +82,7 @@ public class BroadcastRepository : IBroadcastRepository, IDisposable
     }
 
     /// <inheritdoc/>
-    public async Task<int> BroadcastToMultipleConnectionsAsync(IEnumerable<string> connectionIds, string message)
+    public async Task<int> BroadcastToMultipleConnectionsAsync(IEnumerable<ConnectionId> connectionIds, string message)
     {
         var connectionIdList = connectionIds.ToList();
         

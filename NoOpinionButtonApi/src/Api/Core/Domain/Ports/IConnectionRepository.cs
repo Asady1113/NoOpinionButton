@@ -1,4 +1,6 @@
 using Core.Domain.Entities;
+using Core.Domain.ValueObjects.Connection;
+using Core.Domain.ValueObjects.Meeting;
 
 namespace Core.Domain.Ports;
 
@@ -19,12 +21,12 @@ public interface IConnectionRepository
     /// </summary>
     /// <param name="meetingId">会議ID</param>
     /// <returns>有効な接続一覧</returns>
-    Task<IEnumerable<Connection>> GetActiveConnectionsByMeetingIdAsync(string meetingId);
+    Task<IEnumerable<Connection>> GetActiveConnectionsByMeetingIdAsync(MeetingId meetingId);
 
     /// <summary>
     /// 接続を無効化する（切断時）
     /// </summary>
     /// <param name="connectionId">接続ID</param>
     /// <returns>更新成功可否</returns>
-    Task<bool> DeactivateAsync(string connectionId);
+    Task<bool> DeactivateAsync(ConnectionId connectionId);
 }

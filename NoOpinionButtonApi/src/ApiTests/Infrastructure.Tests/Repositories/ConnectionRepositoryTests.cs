@@ -2,6 +2,8 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Core.Domain.Entities;
+using Core.Domain.ValueObjects.Connection;
+using Core.Domain.ValueObjects.Meeting;
 using Infrastructure.Entities;
 using Infrastructure.Repository;
 using Moq;
@@ -59,7 +61,7 @@ public class ConnectionRepositoryTests
     public async Task 正常系_GetActiveConnectionsByMeetingIdAsync_アクティブ接続の検索成功()
     {
         // Arrange
-        var meetingId = "meeting-123";
+        var meetingId = new MeetingId("meeting-123");
         var connectedAt1 = DateTime.UtcNow.AddMinutes(-10);
         var connectedAt2 = DateTime.UtcNow.AddMinutes(-5);
 
@@ -69,7 +71,7 @@ public class ConnectionRepositoryTests
             {
                 ConnectionId = "conn-001",
                 ParticipantId = "participant-001",
-                MeetingId = meetingId,
+                MeetingId = meetingId.Value,
                 ConnectedAt = connectedAt1,
                 IsActive = true
             },
@@ -77,7 +79,7 @@ public class ConnectionRepositoryTests
             {
                 ConnectionId = "conn-002",
                 ParticipantId = "participant-002",
-                MeetingId = meetingId,
+                MeetingId = meetingId.Value,
                 ConnectedAt = connectedAt2,
                 IsActive = true
             }
@@ -99,13 +101,13 @@ public class ConnectionRepositoryTests
         
         Assert.Equal("conn-001", resultList[0].Id);
         Assert.Equal("participant-001", resultList[0].ParticipantId);
-        Assert.Equal(meetingId, resultList[0].MeetingId);
+        Assert.Equal(meetingId.Value, resultList[0].MeetingId);
         Assert.Equal(connectedAt1, resultList[0].ConnectedAt);
         Assert.True(resultList[0].IsActive);
 
         Assert.Equal("conn-002", resultList[1].Id);
         Assert.Equal("participant-002", resultList[1].ParticipantId);
-        Assert.Equal(meetingId, resultList[1].MeetingId);
+        Assert.Equal(meetingId.Value, resultList[1].MeetingId);
         Assert.Equal(connectedAt2, resultList[1].ConnectedAt);
         Assert.True(resultList[1].IsActive);
 
@@ -118,10 +120,10 @@ public class ConnectionRepositoryTests
     public async Task 正常系_DeactivateAsync_接続の非アクティブ化成功()
     {
         // Arrange
-        var connectionId = "conn-deactivate";
+        var connectionId = new ConnectionId("conn-deactivate");
         var connectionEntity = new WebSocketConnectionEntity
         {
-            ConnectionId = connectionId,
+            ConnectionId = connectionId.Value,
             ParticipantId = "participant-123",
             MeetingId = "meeting-456",
             ConnectedAt = DateTime.UtcNow.AddMinutes(-15),
@@ -142,7 +144,7 @@ public class ConnectionRepositoryTests
 
         _contextMock.Verify(x => x.LoadAsync<WebSocketConnectionEntity>(connectionId, default), Times.Once);
         _contextMock.Verify(x => x.SaveAsync(It.Is<WebSocketConnectionEntity>(entity =>
-            entity.ConnectionId == connectionId &&
+            entity.ConnectionId == connectionId.Value &&
             entity.IsActive == false
         ), default), Times.Once);
     }
@@ -151,7 +153,7 @@ public class ConnectionRepositoryTests
     public async Task 異常系_DeactivateAsync_存在しない接続IDでfalseを返す()
     {
         // Arrange
-        var connectionId = "nonexistent-connection";
+        var connectionId = new ConnectionId("nonexistent-connection");
         
         _contextMock.Setup(x => x.LoadAsync<WebSocketConnectionEntity>(connectionId, default))
             .ReturnsAsync((WebSocketConnectionEntity)null);
@@ -193,7 +195,7 @@ public class ConnectionRepositoryTests
     public async Task 異常系_DeactivateAsync_DynamoDB例外時にfalseを返す()
     {
         // Arrange
-        var connectionId = "conn-exception";
+        var connectionId = new ConnectionId("conn-exception");
         var dynamoException = new AmazonDynamoDBException("DynamoDB読み込みエラー");
         
         _contextMock.Setup(x => x.LoadAsync<WebSocketConnectionEntity>(connectionId, default))

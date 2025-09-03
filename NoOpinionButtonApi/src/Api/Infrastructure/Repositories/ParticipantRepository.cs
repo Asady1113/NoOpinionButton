@@ -1,6 +1,8 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using Core.Domain.Entities;
 using Core.Domain.Ports;
+using Core.Domain.ValueObjects.Meeting;
+using Core.Domain.ValueObjects.Participant;
 using Infrastructure.Entities;
 
 namespace Infrastructure.Repository;
@@ -15,7 +17,7 @@ public class ParticipantRepository : IParticipantRepository
     }
 
     /// <inheritdoc/>
-    public async Task<Participant> SaveParticipantAsync(string id, string meetingId)
+    public async Task<Participant> SaveParticipantAsync(ParticipantId id, MeetingId meetingId)
     {
         var entity = new ParticipantEntity
         {

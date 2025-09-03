@@ -1,5 +1,6 @@
 using Amazon.ApiGatewayManagementApi;
 using Amazon.ApiGatewayManagementApi.Model;
+using Core.Domain.ValueObjects.Connection;
 using Infrastructure.Repository;
 using Moq;
 using System.Text;
@@ -61,7 +62,7 @@ public class BroadcastRepositoryTests : IDisposable
     public async Task 正常系_BroadcastToMultipleConnectionsAsync_複数接続への並列配信成功()
     {
         // Arrange
-        var connectionIds = new[] { "connection1", "connection2", "connection3" };
+        var connectionIds = new List<ConnectionId> { "connection1", "connection2", "connection3" };
         var message = "Broadcast message to multiple connections for parallel processing test";
 
         _managementApiClientMock
@@ -89,7 +90,7 @@ public class BroadcastRepositoryTests : IDisposable
     public async Task 正常系_BroadcastToMultipleConnectionsAsync_空の接続リストで0を返す()
     {
         // Arrange
-        var connectionIds = new string[0];
+        var connectionIds = new ConnectionId[0];
         var message = "Message for empty connection list test";
 
         // Act
@@ -187,7 +188,7 @@ public class BroadcastRepositoryTests : IDisposable
     public async Task 境界値_BroadcastToMultipleConnectionsAsync_一部接続失敗時の成功数カウント()
     {
         // Arrange
-        var connectionIds = new[] { "success1", "fail1", "success2", "fail2", "success3" };
+        var connectionIds = new List<ConnectionId> { "success1", "fail1", "success2", "fail2", "success3" };
         var message = "Mixed success and failure test message for partial broadcast completion";
 
         _managementApiClientMock
@@ -215,7 +216,7 @@ public class BroadcastRepositoryTests : IDisposable
     public async Task 特殊ケース_BroadcastToMultipleConnectionsAsync_重複接続IDの処理()
     {
         // Arrange
-        var connectionIds = new[] { "duplicate", "unique", "duplicate", "unique" };
+        var connectionIds = new List<ConnectionId> { "duplicate", "unique", "duplicate", "unique" };
         var message = "Duplicate connection ID handling test for broadcast repository";
 
         _managementApiClientMock

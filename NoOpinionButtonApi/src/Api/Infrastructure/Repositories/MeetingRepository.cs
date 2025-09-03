@@ -1,6 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using Core.Domain.Entities;
 using Core.Domain.Ports;
+using Core.Domain.ValueObjects.Meeting;
 using Infrastructure.Entities;
 
 namespace Infrastructure.Repository;
@@ -15,7 +16,7 @@ public class MeetingRepository : IMeetingRepository
     }
 
     /// <inheritdoc/>
-    public async Task<Meeting> GetMeetingByIdAsync(string id)
+    public async Task<Meeting> GetMeetingByIdAsync(MeetingId id)
     {
         MeetingEntity meetingEntity = await _context.LoadAsync<MeetingEntity>(id);
 
