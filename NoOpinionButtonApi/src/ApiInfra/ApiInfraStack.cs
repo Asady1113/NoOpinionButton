@@ -158,6 +158,19 @@ namespace ApiInfra
                 }
             });
 
+            var updateParticipantNameLambda = new Function(this, "UpdateParticipantNameFunction", new FunctionProps
+            {
+                FunctionName = "NoOpinionButton-UpdateParticipantNameFunction",
+                Runtime = Runtime.DOTNET_8,
+                Code = Code.FromAsset("src/Api/LambdaHandlers/UpdateParticipantNameFunction/bin/Release/net8.0/publish"),
+                Handler = "UpdateParticipantNameFunction::UpdateParticipantNameFunction.Function::FunctionHandler",
+                Timeout = Duration.Seconds(30),
+                Environment = new Dictionary<string, string>
+                {
+                    { "PARTICIPANT_TABLE_NAME", "Participant" }
+                }
+            });
+
             // Lambda関数にDynamoDBアクセス権を付与（データの取得・挿入）
             administratorTable.GrantReadWriteData(signInLambda);
             meetingTable.GrantReadWriteData(signInLambda);
@@ -189,6 +202,9 @@ namespace ApiInfra
                 MaxBatchingWindow = Duration.Seconds(5)
             }));
 
+            // UpdateParticipantNameFunction にDynamoDBアクセス権を付与
+            participantTable.GrantReadWriteData(updateParticipantNameLambda);
+
             // RestApi（REST API v1）を作成
             var api = new RestApi(this, "NoOpinionButtonApi", new RestApiProps
             {
@@ -209,6 +225,13 @@ namespace ApiInfra
             var messagesResource = api.Root.AddResource("message");
             messagesResource.AddMethod("POST", new LambdaIntegration(postMessageLambda));
             messagesResource.AddMethod("OPTIONS", new LambdaIntegration(postMessageLambda)); // CORS対応
+
+            // participants エンドポイント: PUT /participants/{participantId}/name
+            var participantsResource = api.Root.AddResource("participants");
+            var participantResource = participantsResource.AddResource("{participantId}");
+            var participantNameResource = participantResource.AddResource("name");
+            participantNameResource.AddMethod("PUT", new LambdaIntegration(updateParticipantNameLambda));
+            participantNameResource.AddMethod("OPTIONS", new LambdaIntegration(updateParticipantNameLambda)); // CORS対応
 
             // WebSocket API Gateway V2 を作成
             var webSocketApi = new WebSocketApi(this, "NoOpinionButtonWebSocketApi", new WebSocketApiProps

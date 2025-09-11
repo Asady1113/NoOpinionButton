@@ -18,7 +18,7 @@ public class MeetingRepository : IMeetingRepository
     /// <inheritdoc/>
     public async Task<Meeting> GetMeetingByIdAsync(MeetingId id)
     {
-        MeetingEntity meetingEntity = await _context.LoadAsync<MeetingEntity>(id);
+        MeetingEntity meetingEntity = await _context.LoadAsync<MeetingEntity>(id.Value);
 
         if (meetingEntity == null)
         {

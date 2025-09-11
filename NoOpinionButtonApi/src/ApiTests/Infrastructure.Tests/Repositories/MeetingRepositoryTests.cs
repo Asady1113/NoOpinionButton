@@ -32,7 +32,7 @@ public class MeetingRepositoryTests
             ParticipantPassword = "user456"
         };
 
-        _contextMock.Setup(x => x.LoadAsync<MeetingEntity>(meetingId, default))
+        _contextMock.Setup(x => x.LoadAsync<MeetingEntity>(meetingId.Value, default))
             .ReturnsAsync(meetingEntity);
 
         // Act
@@ -41,11 +41,11 @@ public class MeetingRepositoryTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(meetingId.Value, result.Id);
-        Assert.Equal("テスト会議", result.Name);
-        Assert.Equal("admin123", result.FacilitatorPassword);
-        Assert.Equal("user456", result.ParticipantPassword);
+        Assert.Equal(meetingEntity.Name, result.Name);
+        Assert.Equal(meetingEntity.FacilitatorPassword, result.FacilitatorPassword);
+        Assert.Equal(meetingEntity.ParticipantPassword, result.ParticipantPassword);
         
-        _contextMock.Verify(x => x.LoadAsync<MeetingEntity>(meetingId, default), Times.Once);
+        _contextMock.Verify(x => x.LoadAsync<MeetingEntity>(meetingId.Value, default), Times.Once);
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class MeetingRepositoryTests
         // Arrange
         var meetingId = new MeetingId("nonexistent-meeting");
         
-        _contextMock.Setup(x => x.LoadAsync<MeetingEntity>(meetingId, default))
+        _contextMock.Setup(x => x.LoadAsync<MeetingEntity>(meetingId.Value, default))
             .ReturnsAsync((MeetingEntity)null);
 
         // Act & Assert
@@ -62,7 +62,7 @@ public class MeetingRepositoryTests
             _repository.GetMeetingByIdAsync(meetingId));
         
         Assert.Equal($"Meeting with Id '{meetingId}' was not found.", exception.Message);
-        _contextMock.Verify(x => x.LoadAsync<MeetingEntity>(meetingId, default), Times.Once);
+        _contextMock.Verify(x => x.LoadAsync<MeetingEntity>(meetingId.Value, default), Times.Once);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class MeetingRepositoryTests
         var meetingId = new MeetingId("meeting123");
         var dynamoException = new AmazonDynamoDBException("DynamoDB connection error");
 
-        _contextMock.Setup(x => x.LoadAsync<MeetingEntity>(meetingId, default))
+        _contextMock.Setup(x => x.LoadAsync<MeetingEntity>(meetingId.Value, default))
             .ThrowsAsync(dynamoException);
 
         // Act & Assert
@@ -80,7 +80,7 @@ public class MeetingRepositoryTests
             _repository.GetMeetingByIdAsync(meetingId));
         
         Assert.Equal("DynamoDB connection error", exception.Message);
-        _contextMock.Verify(x => x.LoadAsync<MeetingEntity>(meetingId, default), Times.Once);
+        _contextMock.Verify(x => x.LoadAsync<MeetingEntity>(meetingId.Value, default), Times.Once);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public class MeetingRepositoryTests
             ParticipantPassword = "ユーザー456"
         };
 
-        _contextMock.Setup(x => x.LoadAsync<MeetingEntity>(meetingId, default))
+        _contextMock.Setup(x => x.LoadAsync<MeetingEntity>(meetingId.Value, default))
             .ReturnsAsync(meetingEntity);
 
         // Act
@@ -105,10 +105,10 @@ public class MeetingRepositoryTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(meetingId.Value, result.Id);
-        Assert.Equal("特殊文字テスト会議", result.Name);
-        Assert.Equal("パスワード123", result.FacilitatorPassword);
-        Assert.Equal("ユーザー456", result.ParticipantPassword);
+        Assert.Equal(meetingEntity.Name, result.Name);
+        Assert.Equal(meetingEntity.FacilitatorPassword, result.FacilitatorPassword);
+        Assert.Equal(meetingEntity.ParticipantPassword, result.ParticipantPassword);
         
-        _contextMock.Verify(x => x.LoadAsync<MeetingEntity>(meetingId, default), Times.Once);
+        _contextMock.Verify(x => x.LoadAsync<MeetingEntity>(meetingId.Value, default), Times.Once);
     }
 }

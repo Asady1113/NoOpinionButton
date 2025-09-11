@@ -34,6 +34,7 @@
     <ProjectReference Include="..\..\Api\LambdaHandlers\MessageBroadcastFunction\MessageBroadcastFunction.csproj" />
     <ProjectReference Include="..\..\Api\LambdaHandlers\WebSocketConnectFunction\WebSocketConnectFunction.csproj" />
     <ProjectReference Include="..\..\Api\LambdaHandlers\WebSocketDisconnectFunction\WebSocketDisconnectFunction.csproj" />
+    <ProjectReference Include="..\..\Api\LambdaHandlers\UpdateParticipantNameFunction\UpdateParticipantNameFunction.csproj" />
     <ProjectReference Include="..\..\Api\Core\Core.csproj" />
     <ProjectReference Include="..\..\Api\Common\Common.csproj" />
   </ItemGroup>

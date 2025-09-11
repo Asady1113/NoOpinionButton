@@ -23,6 +23,7 @@ public class ParticipantRepository : IParticipantRepository
         {
             Id = id,
             MeetingId = meetingId,
+            Name = "未設定"
         };
 
         await _context.SaveAsync(entity);
@@ -34,5 +35,39 @@ public class ParticipantRepository : IParticipantRepository
             0   // NoOpinionPointのデフォルト値
         );
         return participant;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Participant?> GetByIdAsync(ParticipantId id)
+    {
+        var entity = await _context.LoadAsync<ParticipantEntity>(id.Value);
+        
+        if (entity == null)
+            return null;
+
+        return new Participant(
+            entity.Id,
+            entity.Name,
+            entity.MeetingId,
+            entity.NoOpinionPoint,
+            entity.HasOpinion,
+            entity.IsActive
+        );
+    }
+
+    /// <inheritdoc/>
+    public async Task UpdateAsync(Participant participant)
+    {
+        var entity = new ParticipantEntity
+        {
+            Id = participant.Id,
+            Name = participant.Name,
+            MeetingId = participant.MeetingId,
+            NoOpinionPoint = participant.NoOpinionPoint.Value,
+            HasOpinion = participant.HasOpinion,
+            IsActive = participant.IsActive
+        };
+
+        await _context.SaveAsync(entity);
     }
 }

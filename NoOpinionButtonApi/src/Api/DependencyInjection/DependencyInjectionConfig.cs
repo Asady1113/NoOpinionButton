@@ -34,6 +34,7 @@ public static class DependencyInjectionConfig
         services.AddTransient<IMessageService, MessageService>();
         services.AddTransient<IConnectionService, ConnectionService>();
         services.AddTransient<IBroadcastService, BroadcastService>();
+        services.AddTransient<IParticipantUpdateService, ParticipantUpdateService>();
 
         // Domain Ports -> Infrastructure implementations
         services.AddTransient<IParticipantRepository, ParticipantRepository>();
