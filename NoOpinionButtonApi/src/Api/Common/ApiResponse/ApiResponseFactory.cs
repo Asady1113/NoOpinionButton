@@ -88,7 +88,7 @@ public class ApiResponseFactory
             {
                 ["Access-Control-Allow-Origin"] = "*",  // 全てのオリジンを許可する（本番では指定）
                 ["Access-Control-Allow-Headers"] = "*", // クライアントが送ってくるリクエストヘッダーのうち、全てを許可
-                ["Access-Control-Allow-Methods"] = "OPTIONS,POST,GET"  // どの HTTP メソッドを許可するかを指定
+                ["Access-Control-Allow-Methods"] = "OPTIONS,POST,GET,PUT"  // どの HTTP メソッドを許可するかを指定
             }
         };
 }

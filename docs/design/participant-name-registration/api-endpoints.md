@@ -46,7 +46,10 @@
 
 ```json
 {
-  "success": true
+    "Data": {
+        "updatedName": "田中太郎"
+    },
+    "Error": null
 }
 ```
 
@@ -54,8 +57,8 @@
 
 ```json
 {
-  "success": false,
-  "error": "エラーメッセージ"
+    "Data": null,
+    "Error": "エラーメッセージ"
 }
 ```
 
