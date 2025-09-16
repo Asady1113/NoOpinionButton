@@ -61,9 +61,9 @@ public class MessageBroadcastFunctionTests
     /// <summary>
     /// テスト用のデフォルトメッセージ属性を作成する
     /// </summary>
-    private Dictionary<string, DynamoDBEvent.AttributeValue> CreateDefaultMessageAttributes()
+    private Dictionary<string, DynamoDBEvent.AttributeValue> CreateDefaultMessageAttributes(bool includeParticipantName = true)
     {
-        return new Dictionary<string, DynamoDBEvent.AttributeValue>
+        var attributes = new Dictionary<string, DynamoDBEvent.AttributeValue>
         {
             ["Id"] = new() { S = "message-123" },
             ["MeetingId"] = new() { S = "meeting-456" },
@@ -74,6 +74,13 @@ public class MessageBroadcastFunctionTests
             ["ReportedCount"] = new() { N = "0" },
             ["IsActive"] = new() { N = "1" }
         };
+
+        if (includeParticipantName)
+        {
+            attributes["ParticipantName"] = new() { S = "テストユーザー" };
+        }
+
+        return attributes;
     }
 
     [Fact]
@@ -95,14 +102,15 @@ public class MessageBroadcastFunctionTests
             It.Is<string>(json => 
                 json.Contains("message-123") && 
                 json.Contains("meeting-456") &&
-                json.Contains("participant-789"))),
+                json.Contains("participant-789") &&
+                json.Contains("participantName"))),
             Times.Once);
 
         // ログ出力の確認
         var testLogger = (TestLambdaLogger)_context.Logger;
         var logMessages = testLogger.Buffer.ToString();
         Assert.Contains("Processing record: INSERT", logMessages);
-        Assert.Contains("Broadcasting message message-123 to meeting meeting-456", logMessages);
+        Assert.Contains("Broadcasting message message-123 to meeting meeting-456 from participant テストユーザー", logMessages);
         Assert.Contains("Message broadcast completed", logMessages);
     }
 
@@ -180,6 +188,7 @@ public class MessageBroadcastFunctionTests
                             ["Id"] = new() { S = "message-999" },
                             ["MeetingId"] = new() { S = "meeting-888" },
                             ["ParticipantId"] = new() { S = "participant-777" },
+                            ["ParticipantName"] = new() { S = "二番目のユーザー" },
                             ["Content"] = new() { S = "二番目のメッセージです。" },
                             ["CreatedAt"] = new() { S = "2025-01-15T10:35:00Z" },
                             ["LikeCount"] = new() { N = "0" },
@@ -209,8 +218,8 @@ public class MessageBroadcastFunctionTests
         var logMessages = testLogger.Buffer.ToString();
         Assert.Contains("Processing record: INSERT", logMessages);
         Assert.Contains("Processing record: MODIFY", logMessages);
-        Assert.Contains("Broadcasting message message-123 to meeting meeting-456", logMessages);
-        Assert.Contains("Broadcasting message message-999 to meeting meeting-888", logMessages);
+        Assert.Contains("Broadcasting message message-123 to meeting meeting-456 from participant テストユーザー", logMessages);
+        Assert.Contains("Broadcasting message message-999 to meeting meeting-888 from participant 二番目のユーザー", logMessages);
     }
 
     [Fact]
@@ -234,7 +243,7 @@ public class MessageBroadcastFunctionTests
         var testLogger = (TestLambdaLogger)_context.Logger;
         var logMessages = testLogger.Buffer.ToString();
         Assert.Contains("Processing record: INSERT", logMessages);
-        Assert.Contains("Broadcasting message message-123 to meeting meeting-456", logMessages);
+        Assert.Contains("Broadcasting message message-123 to meeting meeting-456 from participant テストユーザー", logMessages);
         Assert.Contains("Error processing message insert:", logMessages);
         Assert.Contains("InvalidOperationException", logMessages);
         Assert.Contains("Broadcast service error", logMessages);
@@ -277,6 +286,7 @@ public class MessageBroadcastFunctionTests
             ["Id"] = new() { S = "message-long" },
             ["MeetingId"] = new() { S = "meeting-456" },
             ["ParticipantId"] = new() { S = "participant-789" },
+            ["ParticipantName"] = new() { S = "長文ユーザー" },
             ["Content"] = new() { S = longContent },
             ["CreatedAt"] = new() { S = "2025-01-15T10:30:00Z" },
             ["LikeCount"] = new() { N = "0" },
@@ -302,7 +312,7 @@ public class MessageBroadcastFunctionTests
         // ログ出力の確認
         var testLogger = (TestLambdaLogger)_context.Logger;
         var logMessages = testLogger.Buffer.ToString();
-        Assert.Contains("Broadcasting message message-long to meeting meeting-456", logMessages);
+        Assert.Contains("Broadcasting message message-long to meeting meeting-456 from participant 長文ユーザー", logMessages);
         Assert.Contains("Message broadcast completed", logMessages);
     }
 
@@ -315,6 +325,7 @@ public class MessageBroadcastFunctionTests
             ["Id"] = new() { S = "message-boundary" },
             ["MeetingId"] = new() { S = "meeting-456" },
             ["ParticipantId"] = new() { S = "participant-789" },
+            ["ParticipantName"] = new() { S = "境界値ユーザー" },
             ["Content"] = new() { S = "境界値テストメッセージ" },
             ["CreatedAt"] = new() { S = "2025-01-15T10:30:00Z" },
             ["LikeCount"] = new() { N = "2147483647" }, // int.MaxValue
@@ -342,6 +353,225 @@ public class MessageBroadcastFunctionTests
         // ログ出力の確認
         var testLogger = (TestLambdaLogger)_context.Logger;
         var logMessages = testLogger.Buffer.ToString();
+        Assert.Contains("Message broadcast completed", logMessages);
+    }
+
+    [Fact]
+    public async Task 正常系_FunctionHandler_ParticipantName含む_JSON配信成功()
+    {
+        // Arrange
+        var messageAttributes = new Dictionary<string, DynamoDBEvent.AttributeValue>
+        {
+            ["Id"] = new() { S = "message-with-name" },
+            ["MeetingId"] = new() { S = "meeting-123" },
+            ["ParticipantId"] = new() { S = "participant-456" },
+            ["ParticipantName"] = new() { S = "山田太郎" },
+            ["Content"] = new() { S = "参加者名付きメッセージ" },
+            ["CreatedAt"] = new() { S = "2025-01-15T11:00:00Z" },
+            ["LikeCount"] = new() { N = "5" },
+            ["ReportedCount"] = new() { N = "1" },
+            ["IsActive"] = new() { N = "1" }
+        };
+
+        var dynamoEvent = CreateDynamoDBEvent("INSERT", messageAttributes);
+
+        _broadcastServiceMock
+            .Setup(x => x.BroadcastMessageToMeetingAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _function.FunctionHandler(dynamoEvent, _context);
+
+        // Assert
+        _broadcastServiceMock.Verify(x => x.BroadcastMessageToMeetingAsync(
+            "meeting-123", 
+            It.Is<string>(json => 
+                json.Contains("\"messageId\":\"message-with-name\"") &&
+                json.Contains("\"meetingId\":\"meeting-123\"") &&
+                json.Contains("\"participantId\":\"participant-456\"") &&
+                json.Contains("\"participantName\"") &&
+                json.Contains("\"likeCount\":5") &&
+                json.Contains("\"reportedCount\":1") &&
+                json.Contains("\"isActive\":1"))),
+            Times.Once);
+
+        // ログ出力の確認
+        var testLogger = (TestLambdaLogger)_context.Logger;
+        var logMessages = testLogger.Buffer.ToString();
+        Assert.Contains("Broadcasting message message-with-name to meeting meeting-123 from participant 山田太郎", logMessages);
+        Assert.Contains("Message broadcast completed", logMessages);
+    }
+
+    [Fact]
+    public async Task 正常系_FunctionHandler_ParticipantName存在しない_フォールバック処理()
+    {
+        // Arrange
+        var messageAttributes = CreateDefaultMessageAttributes(includeParticipantName: false);
+        var dynamoEvent = CreateDynamoDBEvent("INSERT", messageAttributes);
+
+        _broadcastServiceMock
+            .Setup(x => x.BroadcastMessageToMeetingAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _function.FunctionHandler(dynamoEvent, _context);
+
+        // Assert
+        _broadcastServiceMock.Verify(x => x.BroadcastMessageToMeetingAsync(
+            "meeting-456", 
+            It.Is<string>(json => 
+                json.Contains("\"participantName\"") &&
+                json.Contains("\"messageId\":\"message-123\"") &&
+                json.Contains("\"participantId\":\"participant-789\""))),
+            Times.Once);
+
+        // ログ出力の確認
+        var testLogger = (TestLambdaLogger)_context.Logger;
+        var logMessages = testLogger.Buffer.ToString();
+        Assert.Contains("Broadcasting message message-123 to meeting meeting-456 from participant 不明なユーザー", logMessages);
+        Assert.Contains("Message broadcast completed", logMessages);
+    }
+
+    [Fact]
+    public async Task 正常系_FunctionHandler_ParticipantNameが空文字列_フォールバック処理()
+    {
+        // Arrange
+        var messageAttributes = CreateDefaultMessageAttributes();
+        messageAttributes["ParticipantName"] = new DynamoDBEvent.AttributeValue { S = "" };
+        var dynamoEvent = CreateDynamoDBEvent("INSERT", messageAttributes);
+
+        _broadcastServiceMock
+            .Setup(x => x.BroadcastMessageToMeetingAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _function.FunctionHandler(dynamoEvent, _context);
+
+        // Assert
+        _broadcastServiceMock.Verify(x => x.BroadcastMessageToMeetingAsync(
+            "meeting-456", 
+            It.Is<string>(json => 
+                json.Contains("\"participantName\":\"\"") &&
+                json.Contains("\"messageId\":\"message-123\""))),
+            Times.Once);
+
+        // ログ出力の確認
+        var testLogger = (TestLambdaLogger)_context.Logger;
+        var logMessages = testLogger.Buffer.ToString();
+        Assert.Contains("Broadcasting message message-123 to meeting meeting-456 from participant", logMessages);
+        Assert.Contains("Message broadcast completed", logMessages);
+    }
+
+    [Fact]
+    public async Task 正常系_FunctionHandler_ParticipantNameがnull_フォールバック処理()
+    {
+        // Arrange
+        var messageAttributes = CreateDefaultMessageAttributes();
+        messageAttributes["ParticipantName"] = new DynamoDBEvent.AttributeValue { NULL = true };
+        var dynamoEvent = CreateDynamoDBEvent("INSERT", messageAttributes);
+
+        _broadcastServiceMock
+            .Setup(x => x.BroadcastMessageToMeetingAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _function.FunctionHandler(dynamoEvent, _context);
+
+        // Assert
+        _broadcastServiceMock.Verify(x => x.BroadcastMessageToMeetingAsync(
+            "meeting-456", 
+            It.Is<string>(json => 
+                json.Contains("\"participantName\"") &&
+                json.Contains("\"messageId\":\"message-123\""))),
+            Times.Once);
+
+        // ログ出力の確認
+        var testLogger = (TestLambdaLogger)_context.Logger;
+        var logMessages = testLogger.Buffer.ToString();
+        Assert.Contains("Broadcasting message message-123 to meeting meeting-456 from participant 不明なユーザー", logMessages);
+        Assert.Contains("Message broadcast completed", logMessages);
+    }
+
+    [Fact]
+    public async Task 正常系_FunctionHandler_ParticipantName特殊文字_正常処理()
+    {
+        // Arrange
+        var messageAttributes = new Dictionary<string, DynamoDBEvent.AttributeValue>
+        {
+            ["Id"] = new() { S = "message-special" },
+            ["MeetingId"] = new() { S = "meeting-456" },
+            ["ParticipantId"] = new() { S = "participant-789" },
+            ["ParticipantName"] = new() { S = "田中@花子_123" },
+            ["Content"] = new() { S = "特殊文字テスト" },
+            ["CreatedAt"] = new() { S = "2025-01-15T12:00:00Z" },
+            ["LikeCount"] = new() { N = "0" },
+            ["ReportedCount"] = new() { N = "0" },
+            ["IsActive"] = new() { N = "1" }
+        };
+
+        var dynamoEvent = CreateDynamoDBEvent("INSERT", messageAttributes);
+
+        _broadcastServiceMock
+            .Setup(x => x.BroadcastMessageToMeetingAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _function.FunctionHandler(dynamoEvent, _context);
+
+        // Assert
+        _broadcastServiceMock.Verify(x => x.BroadcastMessageToMeetingAsync(
+            "meeting-456", 
+            It.Is<string>(json => 
+                json.Contains("\"participantName\"") &&
+                json.Contains("\"messageId\":\"message-special\""))),
+            Times.Once);
+
+        // ログ出力の確認
+        var testLogger = (TestLambdaLogger)_context.Logger;
+        var logMessages = testLogger.Buffer.ToString();
+        Assert.Contains("Broadcasting message message-special to meeting meeting-456 from participant 田中@花子_123", logMessages);
+        Assert.Contains("Message broadcast completed", logMessages);
+    }
+
+    [Fact]
+    public async Task 正常系_FunctionHandler_ParticipantName最大長_正常処理()
+    {
+        // Arrange
+        var longParticipantName = new string('あ', 50); // 50文字の参加者名
+        var messageAttributes = new Dictionary<string, DynamoDBEvent.AttributeValue>
+        {
+            ["Id"] = new() { S = "message-long-name" },
+            ["MeetingId"] = new() { S = "meeting-456" },
+            ["ParticipantId"] = new() { S = "participant-789" },
+            ["ParticipantName"] = new() { S = longParticipantName },
+            ["Content"] = new() { S = "長い名前テスト" },
+            ["CreatedAt"] = new() { S = "2025-01-15T13:00:00Z" },
+            ["LikeCount"] = new() { N = "0" },
+            ["ReportedCount"] = new() { N = "0" },
+            ["IsActive"] = new() { N = "1" }
+        };
+
+        var dynamoEvent = CreateDynamoDBEvent("INSERT", messageAttributes);
+
+        _broadcastServiceMock
+            .Setup(x => x.BroadcastMessageToMeetingAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _function.FunctionHandler(dynamoEvent, _context);
+
+        // Assert
+        _broadcastServiceMock.Verify(x => x.BroadcastMessageToMeetingAsync(
+            "meeting-456", 
+            It.Is<string>(json => 
+                json.Contains("\"participantName\"") &&
+                json.Contains("\"messageId\":\"message-long-name\""))),
+            Times.Once);
+
+        // ログ出力の確認
+        var testLogger = (TestLambdaLogger)_context.Logger;
+        var logMessages = testLogger.Buffer.ToString();
+        Assert.Contains($"Broadcasting message message-long-name to meeting meeting-456 from participant {longParticipantName}", logMessages);
         Assert.Contains("Message broadcast completed", logMessages);
     }
 }

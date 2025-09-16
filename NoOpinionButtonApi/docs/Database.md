@@ -32,6 +32,7 @@
 | Id | VARCHAR(50) | ○ | | NO | `""` | メッセージID（主キー） |
 | MeetingId | VARCHAR(50) | | ○ | NO | `""` | `Meeting` テーブルの外部キー |
 | ParticipantId | VARCHAR(50) | | ○ | NO | `""` | 作成者の参加者ID |
+| ParticipantName | VARCHAR(50) | | | NO | `""` | 参加者名 |
 | CreatedAt | DATETIME | | | NO | CURRENT_TIMESTAMP | 作成日時 |
 | Content | TEXT | | | NO | `""` | メッセージ内容 |
 | LikeCount | INT | | | NO | `0` | 「いいね」の数 |

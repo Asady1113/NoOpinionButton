@@ -27,6 +27,12 @@ public class MessageEntity
     public string ParticipantId { get; set; } = string.Empty;
 
     /// <summary>
+    /// 参加者名
+    /// </summary>
+    [DynamoDBProperty]
+    public string ParticipantName { get; set; } = string.Empty;
+
+    /// <summary>
     /// 作成日時
     /// </summary>
     [DynamoDBProperty]

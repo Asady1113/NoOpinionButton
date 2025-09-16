@@ -58,7 +58,12 @@ public class Function
             var reportedCount = int.Parse(newImage["ReportedCount"].N);
             var isActive = int.Parse(newImage["IsActive"].N);
 
-            context.Logger.LogLine($"Broadcasting message {messageId} to meeting {meetingId}");
+            // ParticipantNameを取得（存在しない場合はフォールバック処理）
+            var participantName = newImage.ContainsKey("ParticipantName") && newImage["ParticipantName"].S != null
+                ? newImage["ParticipantName"].S
+                : "不明なユーザー";
+
+            context.Logger.LogLine($"Broadcasting message {messageId} to meeting {meetingId} from participant {participantName}");
             
             // メッセージをJSON形式にシリアライズ
             var messageJson = JsonSerializer.Serialize(new
@@ -66,6 +71,7 @@ public class Function
                 messageId,
                 meetingId,
                 participantId,
+                participantName,
                 content,
                 createdAt,
                 likeCount,
