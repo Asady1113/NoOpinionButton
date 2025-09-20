@@ -3,6 +3,8 @@ export enum ApiErrorType {
   Unauthorized = 'Unauthorized',
   NotFound = 'NotFound',
   Server = 'Server',
+  WebSocketConnection = 'WebSocketConnection',
+  WebSocketMessage = 'WebSocketMessage'
 }
 
 export interface ApiError {
