@@ -1,47 +1,37 @@
 import { ref, onUnmounted, type Ref } from 'vue'
 import { ApiErrorType, type ApiError } from '~/types/error'
 
+// 接続状況・エラー・再接続回数をまとめてリアクティブに管理。
 interface WebSocketConnectionState {
     isConnected: boolean
     isConnecting: boolean
     error: ApiError | null
-    reconnectAttempts: number
 }
 
 interface WebSocketConnection {
     state: Ref<WebSocketConnectionState>
     connect: (meetingId: string, participantId: string) => Promise<void>
     disconnect: () => void
-    send: (message: any) => void
     onMessage: (callback: (data: any) => void) => void
     onError: (callback: (error: ApiError) => void) => void
     getErrorMessage: (error: ApiError) => string
 }
 
 export const useWebSocketConnection = (): WebSocketConnection => {
+    // リアクティブ変数の初期値を設定
     const state = ref<WebSocketConnectionState>({
         isConnected: false,
         isConnecting: false,
-        error: null,
-        reconnectAttempts: 0
+        error: null
     })
 
     let websocket: WebSocket | null = null
     let messageCallback: ((data: any) => void) | null = null
     let errorCallback: ((error: ApiError) => void) | null = null
-    let reconnectTimeoutId: NodeJS.Timeout | null = null
-    let currentMeetingId: string | null = null
-    let currentParticipantId: string | null = null
 
-    const MAX_RECONNECT_ATTEMPTS = 5
-    const BASE_RECONNECT_DELAY = 1000 // 1 second
     const WEBSOCKET_URL = 'wss://0xjupqx66b.execute-api.ap-northeast-1.amazonaws.com/prod/'
 
-    const calculateReconnectDelay = (attempt: number): number => {
-        // Exponential backoff: 1s, 2s, 4s, 8s, 16s
-        return BASE_RECONNECT_DELAY * Math.pow(2, attempt)
-    }
-
+    // エラーオブジェクトを作るヘルパー関数
     const createApiError = (type: ApiErrorType, message: string, statusCode: number = 0): ApiError => {
         return {
             type,
@@ -67,18 +57,11 @@ export const useWebSocketConnection = (): WebSocketConnection => {
         }
     }
 
-    const clearReconnectTimeout = () => {
-        if (reconnectTimeoutId) {
-            clearTimeout(reconnectTimeoutId)
-            reconnectTimeoutId = null
-        }
-    }
-
+    // WebSocket の onopen イベントで呼ばれる 接続成功時の処理
     const handleWebSocketOpen = () => {
         state.value.isConnected = true
         state.value.isConnecting = false
         state.value.error = null
-        state.value.reconnectAttempts = 0
         console.log('WebSocket connected successfully')
     }
 
@@ -86,6 +69,7 @@ export const useWebSocketConnection = (): WebSocketConnection => {
         try {
             const data = JSON.parse(event.data)
             if (messageCallback) {
+                // onMessageで登録したメソッドを呼ぶ（これはつまりmessageReceptionのhandleWebSockectMessageメソッド）
                 messageCallback(data)
             }
         } catch (error) {
@@ -95,7 +79,7 @@ export const useWebSocketConnection = (): WebSocketConnection => {
                 'メッセージの解析に失敗しました'
             )
             state.value.error = apiError
-            
+
             if (errorCallback) {
                 errorCallback(apiError)
             }
@@ -118,32 +102,7 @@ export const useWebSocketConnection = (): WebSocketConnection => {
     const handleWebSocketClose = (event: CloseEvent) => {
         state.value.isConnected = false
         state.value.isConnecting = false
-
         console.log('WebSocket closed:', event.code, event.reason)
-
-        // Only attempt reconnection if it wasn't a clean close and we haven't exceeded max attempts
-        if (!event.wasClean && state.value.reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-            const delay = calculateReconnectDelay(state.value.reconnectAttempts)
-            console.log(`Attempting reconnection in ${delay}ms (attempt ${state.value.reconnectAttempts + 1}/${MAX_RECONNECT_ATTEMPTS})`)
-
-            reconnectTimeoutId = setTimeout(() => {
-                if (currentMeetingId && currentParticipantId) {
-                    state.value.reconnectAttempts++
-                    connect(currentMeetingId, currentParticipantId)
-                }
-            }, delay)
-        } else if (state.value.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-            const apiError = createApiError(
-                ApiErrorType.WebSocketConnection,
-                '接続の再試行回数が上限に達しました。ページを再読み込みしてください。'
-            )
-            state.value.error = apiError
-            console.error('Max reconnection attempts reached')
-            
-            if (errorCallback) {
-                errorCallback(apiError)
-            }
-        }
     }
 
     const connect = async (meetingId: string, participantId: string): Promise<void> => {
@@ -155,15 +114,14 @@ export const useWebSocketConnection = (): WebSocketConnection => {
             state.value.isConnecting = true
             state.value.error = null
 
-            // Store connection parameters for reconnection
-            currentMeetingId = meetingId
-            currentParticipantId = participantId
-
             const url = `${WEBSOCKET_URL}?meetingId=${encodeURIComponent(meetingId)}&participantId=${encodeURIComponent(participantId)}`
 
             websocket = new WebSocket(url)
 
+            // WebSocket API に元から備わっているイベントハンドラのプロパティ
+            // 接続成功時
             websocket.onopen = handleWebSocketOpen
+            // メッセージ受信時
             websocket.onmessage = handleWebSocketMessage
             websocket.onerror = handleWebSocketError
             websocket.onclose = handleWebSocketClose
@@ -174,12 +132,15 @@ export const useWebSocketConnection = (): WebSocketConnection => {
                     reject(new Error('WebSocket connection timeout'))
                 }, 10000) // 10 second timeout
 
+                // もともと WebSocket インスタンスにセットされていた onopen と onerror を 別の変数に保存
                 const originalOnOpen = websocket?.onopen
                 const originalOnError = websocket?.onerror
 
                 if (websocket) {
                     websocket.onopen = (event) => {
+                        // 接続成功したらまず タイマーをクリア
                         window.clearTimeout(timeout)
+                        // もし元々の onopen があれば呼びだす
                         if (originalOnOpen && websocket) originalOnOpen.call(websocket, event)
                         resolve()
                     }
@@ -200,7 +161,7 @@ export const useWebSocketConnection = (): WebSocketConnection => {
             )
             state.value.error = apiError
             console.error('WebSocket connection error:', error)
-            
+
             if (errorCallback) {
                 errorCallback(apiError)
             }
@@ -209,39 +170,15 @@ export const useWebSocketConnection = (): WebSocketConnection => {
     }
 
     const disconnect = () => {
-        clearReconnectTimeout()
-
         if (websocket) {
-            // Set a flag to prevent reconnection on clean disconnect
             const ws = websocket
             websocket = null
-
-            // Clean close
+            // onclose（＝handleWebSocketClose）が呼ばれる
             ws.close(1000, 'Client disconnect')
         }
-
-        state.value.isConnected = false
-        state.value.isConnecting = false
-        state.value.error = null
-        state.value.reconnectAttempts = 0
-        currentMeetingId = null
-        currentParticipantId = null
     }
 
-    const send = (message: any) => {
-        if (!websocket || websocket.readyState !== WebSocket.OPEN) {
-            throw new Error('WebSocket is not connected')
-        }
-
-        try {
-            const messageString = typeof message === 'string' ? message : JSON.stringify(message)
-            websocket.send(messageString)
-        } catch (error) {
-            console.error('Failed to send WebSocket message:', error)
-            throw error
-        }
-    }
-
+    // messageCallback関数を登録するメソッド
     const onMessage = (callback: (data: any) => void) => {
         messageCallback = callback
     }
@@ -259,7 +196,6 @@ export const useWebSocketConnection = (): WebSocketConnection => {
         state,
         connect,
         disconnect,
-        send,
         onMessage,
         onError,
         getErrorMessage

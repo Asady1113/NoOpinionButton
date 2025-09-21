@@ -141,38 +141,18 @@ export const useMessageReception = (): MessageReception => {
 
   /**
    * Adds a new message to the message list
-   * Maintains maximum message limit by removing oldest messages
    */
   const addMessage = (messageData: MessageData): void => {
-    try {
-      // Check if message already exists to prevent duplicates
-      const existingMessageIndex = state.value.messages.findIndex(
-        msg => msg.id === messageData.id
-      )
+    // Add new message
+    state.value.messages.push(messageData)
 
-      if (existingMessageIndex !== -1) {
-        // Update existing message
-        state.value.messages[existingMessageIndex] = messageData
-      } else {
-        // Add new message
-        state.value.messages.push(messageData)
-
-        // Maintain message limit by removing oldest messages
-        if (state.value.messages.length > MAX_MESSAGES) {
-          state.value.messages = state.value.messages.slice(-MAX_MESSAGES)
-        }
-      }
-
-      // Clear any previous errors when successfully adding a message
-      state.value.error = null
-    } catch (error) {
-      console.error('Failed to add message:', error)
-      const apiError = createApiError(
-        ApiErrorType.WebSocketMessage,
-        'メッセージの受信に失敗しました'
-      )
-      state.value.error = apiError
+    // Maintain message limit by removing oldest messages
+    if (state.value.messages.length > MAX_MESSAGES) {
+      state.value.messages = state.value.messages.slice(-MAX_MESSAGES)
     }
+
+    // Clear any previous errors when successfully adding a message
+    state.value.error = null
   }
 
   /**

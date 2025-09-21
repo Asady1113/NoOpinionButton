@@ -31,16 +31,7 @@
         {{ errorMessage }}
       </p>
       
-      <!-- 再試行ボタン（オプション） -->
-      <div v-if="showRetryButton && onRetry" class="mt-2">
-        <button
-          @click="handleRetry"
-          class="text-sm font-medium underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          :class="retryButtonClasses"
-        >
-          再試行
-        </button>
-      </div>
+
     </div>
     
     <!-- 閉じるボタン（オプション） -->
@@ -71,20 +62,17 @@ interface Props {
   error?: ApiError | null
   visible?: boolean
   dismissible?: boolean
-  showRetryButton?: boolean
   variant?: 'error' | 'warning' | 'info'
 }
 
 interface Emits {
   (e: 'dismiss'): void
-  (e: 'retry'): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
   error: null,
   visible: true,
   dismissible: false,
-  showRetryButton: false,
   variant: 'error'
 })
 
@@ -186,17 +174,6 @@ const messageClasses = computed(() => {
   }
 })
 
-const retryButtonClasses = computed(() => {
-  switch (props.variant) {
-    case 'warning':
-      return 'text-yellow-800 hover:text-yellow-900'
-    case 'info':
-      return 'text-blue-800 hover:text-blue-900'
-    default:
-      return 'text-red-800 hover:text-red-900'
-  }
-})
-
 const closeButtonClasses = computed(() => {
   switch (props.variant) {
     case 'warning':
@@ -208,17 +185,8 @@ const closeButtonClasses = computed(() => {
   }
 })
 
-// 再試行ボタンの表示判定
-const onRetry = computed(() => {
-  return props.error?.type === 'WebSocketConnection'
-})
-
 // イベントハンドラー
 const handleDismiss = () => {
   emit('dismiss')
-}
-
-const handleRetry = () => {
-  emit('retry')
 }
 </script>

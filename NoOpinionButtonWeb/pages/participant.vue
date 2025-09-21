@@ -33,7 +33,6 @@
           :message-error="messageReception.state.value.error"
           :auto-scroll="true"
           :show-timestamps="false"
-          @retry-connection="handleConnectionRetry"
         />
         
         <!-- Loading state while connecting -->
@@ -111,6 +110,7 @@ const setupWebSocketConnection = async () => {
     // Set up message handler before connecting
     webSocketConnection.onMessage((data) => {
       console.log('Received WebSocket message:', data)
+      // messageReceptionのhandleWebSockectMessageメソッドを、メッセージが受信されたタイミングで実行するように指定
       messageReception.handleWebSocketMessage(data)
     })
 
@@ -154,21 +154,7 @@ function handleNameRegistrationError(message: string) {
   // Modal stays open on error to allow retry
 }
 
-// Handle connection retry
-async function handleConnectionRetry() {
-  console.log('Retrying WebSocket connection...')
-  try {
-    // Clear previous errors
-    webSocketConnection.state.value.error = null
-    messageReception.state.value.error = null
-    
-    // Disconnect and reconnect
-    webSocketConnection.disconnect()
-    await setupWebSocketConnection()
-  } catch (error) {
-    console.error('Connection retry failed:', error)
-  }
-}
+
 
 // Initialize modal visibility on component mount
 // ページ読み込み時に条件をチェックしてモーダルを開く

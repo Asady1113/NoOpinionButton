@@ -25,8 +25,6 @@
           :error="primaryError"
           :visible="true"
           :dismissible="false"
-          :show-retry-button="canRetry"
-          @retry="handleErrorRetry"
         />
       </div>
     </div>
@@ -95,10 +93,6 @@ interface Props {
   autoScroll?: boolean
 }
 
-interface Emits {
-  (e: 'retry-connection'): void
-}
-
 const props = withDefaults(defineProps<Props>(), {
   isConnecting: false,
   connectionError: null,
@@ -106,8 +100,6 @@ const props = withDefaults(defineProps<Props>(), {
   showTimestamps: false,
   autoScroll: true
 })
-
-const emit = defineEmits<Emits>()
 
 const messageListContainer = ref<HTMLElement>()
 
@@ -132,17 +124,7 @@ const primaryError = computed(() => {
   return props.connectionError || props.messageError || null
 })
 
-// 再試行可能かどうかの判定
-const canRetry = computed(() => {
-  return primaryError.value?.type === 'WebSocketConnection'
-})
 
-// エラー再試行ハンドラー
-const handleErrorRetry = () => {
-  if (canRetry.value) {
-    emit('retry-connection')
-  }
-}
 
 // 自動スクロール機能
 const scrollToBottom = async () => {
