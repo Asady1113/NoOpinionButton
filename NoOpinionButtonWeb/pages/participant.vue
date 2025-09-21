@@ -57,6 +57,14 @@
           </div>
         </div>
       </div>
+
+      <!-- Message Sending Form -->
+      <MessageSendingForm
+        v-if="nameRegistrationCompleted && signInStore.meetingId && signInStore.id"
+        :meeting-id="signInStore.meetingId"
+        :participant-id="signInStore.id"
+        :disabled="!webSocketConnection.state.value.isConnected"
+      />
     </div>
   </div>
 </template>
@@ -68,6 +76,7 @@ import { useWebSocketConnection } from '~/composables/webSocket/useWebSocketConn
 import { useMessageReception } from '~/composables/message/useMessageReception'
 import ParticipantNameModal from '~/components/organisms/ParticipantNameModal.vue'
 import MessageList from '~/components/organisms/MessageList.vue'
+import MessageSendingForm from '~/components/molecules/MessageSendingForm.vue'
 
 const signInStore = useSignInStore()
 
@@ -153,8 +162,6 @@ function handleNameRegistrationError(message: string) {
   console.error('Name registration error:', message)
   // Modal stays open on error to allow retry
 }
-
-
 
 // Initialize modal visibility on component mount
 // ページ読み込み時に条件をチェックしてモーダルを開く
