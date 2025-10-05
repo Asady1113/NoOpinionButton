@@ -15,7 +15,7 @@
       <input
         :value="messageSending.state.value.content"
         @input="handleInput"
-        @keydown.enter.prevent="handleSubmit"
+        @keydown="handleKeydown"
         :disabled="disabled || messageSending.state.value.isSubmitting"
         :placeholder="placeholder"
         class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
@@ -88,6 +88,20 @@ const messageSending = useMessageSending()
 function handleInput(event: Event) {
   const target = event.target as HTMLInputElement
   messageSending.updateContent(target.value)
+}
+
+// Handle keydown events
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Enter') {
+    if (event.shiftKey) {
+      // Shift+Enter: 送信
+      event.preventDefault()
+      handleSubmit()
+    } else {
+      // Enter only: フォーム送信を防ぐ
+      event.preventDefault()
+    }
+  }
 }
 
 // Handle form submission
