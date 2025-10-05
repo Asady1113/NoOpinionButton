@@ -1,6 +1,8 @@
 using Core.Application;
 using Core.Domain.Entities;
 using Core.Domain.Ports;
+using Core.Domain.ValueObjects.Meeting;
+using Core.Domain.ValueObjects.Participant;
 using Common.Utilities;
 using Moq;
 
@@ -29,15 +31,14 @@ public class SignInServiceTests
             Password = "facilitator-password"
         };
 
-        var meeting = new Meeting
-        {
-            Id = "meeting123",
-            Name = "テスト会議",
-            FacilitatorPassword = "facilitator-password",
-            ParticipantPassword = "participant-password"
-        };
+        var meeting = new Meeting(
+            "meeting123",
+            "テスト会議",
+            "facilitator-password",
+            "participant-password"
+        );
 
-        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync("meeting123"))
+        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()))
             .ReturnsAsync(meeting);
 
         // Act
@@ -49,8 +50,8 @@ public class SignInServiceTests
         Assert.True(result.IsFacilitator);
         Assert.Equal("", result.Id);
         
-        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync("meeting123"), Times.Once);
-        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()), Times.Once);
+        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<ParticipantId>(), It.IsAny<MeetingId>()), Times.Never);
     }
 
     [Fact]
@@ -63,23 +64,23 @@ public class SignInServiceTests
             Password = "participant-password"
         };
 
-        var meeting = new Meeting
-        {
-            Id = "meeting123",
-            Name = "テスト会議",
-            FacilitatorPassword = "facilitator-password",
-            ParticipantPassword = "participant-password"
-        };
+        var meeting = new Meeting(
+            "meeting123",
+            "テスト会議",
+            "facilitator-password",
+            "participant-password"
+        );
 
-        var participant = new Participant
-        {
-            Id = "participant123",
-            MeetingId = "meeting123"
-        };
+        var participant = new Participant(
+            "participant123",
+            "未設定",
+            "meeting123",
+            0
+        );
 
-        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync("meeting123"))
+        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()))
             .ReturnsAsync(meeting);
-        _participantRepositoryMock.Setup(x => x.SaveParticipantAsync(It.IsAny<string>(), "meeting123"))
+        _participantRepositoryMock.Setup(x => x.SaveParticipantAsync(It.IsAny<ParticipantId>(), It.IsAny<MeetingId>()))
             .ReturnsAsync(participant);
 
         // Act
@@ -91,8 +92,8 @@ public class SignInServiceTests
         Assert.Equal("テスト会議", result.MeetingName);
         Assert.False(result.IsFacilitator);
         
-        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync("meeting123"), Times.Once);
-        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<string>(), "meeting123"), Times.Once);
+        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()), Times.Once);
+        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<ParticipantId>(), It.IsAny<MeetingId>()), Times.Once);
     }
 
     [Fact]
@@ -105,15 +106,14 @@ public class SignInServiceTests
             Password = "invalid-password"
         };
 
-        var meeting = new Meeting
-        {
-            Id = "meeting123",
-            Name = "テスト会議",
-            FacilitatorPassword = "facilitator-password",
-            ParticipantPassword = "participant-password"
-        };
+        var meeting = new Meeting(
+            "meeting123",
+            "テスト会議",
+            "facilitator-password",
+            "participant-password"
+        );
 
-        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync("meeting123"))
+        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()))
             .ReturnsAsync(meeting);
 
         // Act & Assert
@@ -121,8 +121,8 @@ public class SignInServiceTests
             _signInService.SignInAsync(request));
         
         Assert.Equal("Password is invalid", exception.Message);
-        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync("meeting123"), Times.Once);
-        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()), Times.Once);
+        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<ParticipantId>(), It.IsAny<MeetingId>()), Times.Never);
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class SignInServiceTests
             Password = "any-password"
         };
 
-        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync("nonexistent-meeting"))
+        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()))
             .ThrowsAsync(new KeyNotFoundException($"Meeting with Id '{request.MeetingId}' was not found."));
 
         // Act & Assert
@@ -143,8 +143,8 @@ public class SignInServiceTests
             _signInService.SignInAsync(request));
         
         Assert.Equal($"Meeting with Id '{request.MeetingId}' was not found.", exception.Message);
-        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync("nonexistent-meeting"), Times.Once);
-        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()), Times.Once);
+        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<ParticipantId>(), It.IsAny<MeetingId>()), Times.Never);
     }
 
     [Fact]
@@ -157,17 +157,16 @@ public class SignInServiceTests
             Password = "participant-password"
         };
 
-        var meeting = new Meeting
-        {
-            Id = "meeting123",
-            Name = "テスト会議",
-            FacilitatorPassword = "facilitator-password",
-            ParticipantPassword = "participant-password"
-        };
+        var meeting = new Meeting(
+            "meeting123",
+            "テスト会議",
+            "facilitator-password",
+            "participant-password"
+        );
 
-        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync("meeting123"))
+        _meetingRepositoryMock.Setup(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()))
             .ReturnsAsync(meeting);
-        _participantRepositoryMock.Setup(x => x.SaveParticipantAsync(It.IsAny<string>(), "meeting123"))
+        _participantRepositoryMock.Setup(x => x.SaveParticipantAsync(It.IsAny<ParticipantId>(), It.IsAny<MeetingId>()))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
         // Act & Assert
@@ -175,7 +174,7 @@ public class SignInServiceTests
             _signInService.SignInAsync(request));
         
         Assert.Equal("Database error", exception.Message);
-        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync("meeting123"), Times.Once);
-        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<string>(), "meeting123"), Times.Once);
+        _meetingRepositoryMock.Verify(x => x.GetMeetingByIdAsync(It.IsAny<MeetingId>()), Times.Once);
+        _participantRepositoryMock.Verify(x => x.SaveParticipantAsync(It.IsAny<ParticipantId>(), It.IsAny<MeetingId>()), Times.Once);
     }
 }

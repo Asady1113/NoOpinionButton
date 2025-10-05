@@ -8,13 +8,13 @@ Resources:
       StageName: 'dev'
     Cors:
       AllowOrigins: "'*'"  # 任意のドメインからのアクセスを許可
-      AllowMethods: "'GET,POST,OPTIONS'"  # 使用するHTTPメソッドを指定
+      AllowMethods: "'GET,POST,PUT,OPTIONS'"  # 使用するHTTPメソッドを指定
   SignInFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: SignInFunction::SignInFunction.Function::FunctionHandler
       Runtime: dotnet8
-      CodeUri: src/Api/LambdaHandlers/SignInFunction/src/SignInFunction
+      CodeUri: src/Api/LambdaHandlers/SignInFunction
       MemorySize: 128
       Timeout: 5
       Events:
@@ -24,3 +24,69 @@ Resources:
             RestApiId: !Ref NoOpinionButtonApi
             Path: /signin
             Method: ANY
+  PostMessageFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: PostMessageFunction::PostMessageFunction.Function::FunctionHandler
+      Runtime: dotnet8
+      CodeUri: src/Api/LambdaHandlers/PostMessageFunction
+      MemorySize: 128
+      Timeout: 5
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NoOpinionButtonApi
+            Path: /message
+            Method: ANY
+  WebSocketConnectFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: WebSocketConnectFunction::WebSocketConnectFunction.Function::FunctionHandler
+      Runtime: dotnet8
+      CodeUri: src/Api/LambdaHandlers/WebSocketConnectFunction
+      MemorySize: 128
+      Timeout: 5
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NoOpinionButtonApi
+            Path: /ws-connect
+            Method: POST
+  WebSocketDisconnectFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: WebSocketDisconnectFunction::WebSocketDisconnectFunction.Function::FunctionHandler
+      Runtime: dotnet8
+      CodeUri: src/Api/LambdaHandlers/WebSocketDisconnectFunction
+      MemorySize: 128
+      Timeout: 5
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NoOpinionButtonApi
+            Path: /ws-disconnect
+            Method: POST
+  UpdateParticipantNameFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: UpdateParticipantNameFunction::UpdateParticipantNameFunction.Function::FunctionHandler
+      Runtime: dotnet8
+      CodeUri: src/Api/LambdaHandlers/UpdateParticipantNameFunction
+      MemorySize: 128
+      Timeout: 30
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NoOpinionButtonApi
+            Path: /participants/{participantId}/name
+            Method: PUT
+        ApiGatewayOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NoOpinionButtonApi
+            Path: /participants/{participantId}/name
+            Method: OPTIONS
