@@ -49,10 +49,25 @@ dotnet test
 
 ## 現在の実装状況
 
-- ✅ **サインイン機能**: 完全実装・テスト完了
-- ⏳ **司会者画面**: 未実装
-- ⏳ **参加者画面**: 未実装
-- ⏳ **意見表明機能**: 未実装
+### 完全実装済み（フルスタック）
+- ✅ **サインイン機能**: バックエンドAPI + フロントエンドUI完了・テスト完了
+  - 認証ロジック・エラーハンドリング
+  - 司会者/参加者自動判定・ページ遷移
+
+### バックエンド実装済み
+- ✅ **メッセージ機能**: API完了・フロントエンド未実装
+  - メッセージ送信API・リアルタイム配信（DynamoDB Streams）
+- ✅ **WebSocket接続管理**: API完了
+  - 接続/切断管理・一括配信機能
+
+### テスト実装済み
+- ✅ **バックエンドテスト**: 20+テストケース（Core/Infrastructure/LambdaHandlers層）
+- ✅ **フロントエンドテスト**: 25テストケース（Composables/コンポーネント/統合テスト）
+
+### 未実装
+- ⏳ **司会者画面**: facilitator.vue未実装
+- ⏳ **参加者画面**: participant.vue未実装
+- ⏳ **意見表明機能**: 「意見なし」ボタン未実装
 
 ## 詳細情報
 
@@ -61,7 +76,3 @@ dotnet test
 - **全体の開発情報**: [CLAUDE.md](./CLAUDE.md)
 - **フロントエンド**: [NoOpinionButtonWeb/README.md](./NoOpinionButtonWeb/README.md)
 - **バックエンド**: [NoOpinionButtonApi/README.md](./NoOpinionButtonApi/README.md)
-
-## ライセンス
-
-このプロジェクトはプライベートプロジェクトです。

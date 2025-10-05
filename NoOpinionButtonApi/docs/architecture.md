@@ -8,22 +8,22 @@
 
 ```
 ┌─────────────────────────────────────────────────┐
-│      API Gateway (REST + WebSocket)            │
+│        API Gateway (REST + WebSocket)          │
 ├─────────────────────────────────────────────────┤
-│                AWS Lambda                       │
+│                 AWS Lambda                      │
 │  ┌─────────────────────────────────────────────┐│
-│  │           LambdaHandlers 層              ││
+│  │          LambdaHandlers 層                 ││
 │  │  ┌─────────────────────────────────────────┐││
-│  │  │              Core 層                ││││
-│  │  │  ┌───────────────┬─────────────────┐│││
-│  │  │  │   Domain      │   Application   ││││
-│  │  │  │   Entities    │   Services      ││││
-│  │  │  │   Ports       │   DTOs, Ports   ││││
-│  │  │  └───────────────┴─────────────────┘│││
+│  │  │               Core 層                  ││││
+│  │  │  ┌───────────────┬─────────────────────┐│││
+│  │  │  │   Domain      │   Application       ││││
+│  │  │  │   Entities    │   Services          ││││
+│  │  │  │   Ports       │   DTOs, Ports       ││││
+│  │  │  └───────────────┴─────────────────────┘│││
 │  │  └─────────────────────────────────────────┘││
 │  │  ┌─────────────────────────────────────────┐││
-│  │  │           Infrastructure 層         ││││
-│  │  │        Repositories, Entities       ││││
+│  │  │         Infrastructure 層              ││││
+│  │  │      Repositories, Entities            ││││
 │  │  └─────────────────────────────────────────┘││
 │  └─────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────┘
@@ -58,10 +58,11 @@
   - `MessageService`: メッセージ送信・配信処理
   - `ConnectionService`: WebSocket接続管理
   - `BroadcastService`: リアルタイムメッセージ配信
+  - `ParticipantUpdateService`: 参加者名更新処理
 - **Ports**: サービス層インターフェース
-  - `ISignInService`, `IMessageService`, `IConnectionService`, `IBroadcastService`
+  - `ISignInService`, `IMessageService`, `IConnectionService`, `IBroadcastService`, `IParticipantUpdateService`
 - **DTOs**: データ転送オブジェクト
-  - Request/Response モデル（SignIn, PostMessage, Connect, Disconnect）
+  - Request/Response モデル（SignIn, PostMessage, Connect, Disconnect, ParticipantUpdate）
 
 ### Infrastructure層 (データアクセス)
 - **Repositories**: データ永続化の実装
@@ -80,6 +81,7 @@
 - **Functions**: AWS Lambda関数
   - `SignInFunction`: サインインAPI
   - `PostMessageFunction`: メッセージ送信API
+  - `UpdateParticipantNameFunction`: 参加者名更新API
   - `WebSocketConnectFunction`: WebSocket接続管理
   - `WebSocketDisconnectFunction`: WebSocket切断管理
   - `MessageBroadcastFunction`: DynamoDB Streams経由リアルタイム配信
@@ -126,7 +128,7 @@ LambdaHandlers → Core ← Infrastructure
 ### 単体テスト
 - **Core層**: ビジネスロジックのテスト（Message, Connection エンティティ含む）
 - **Infrastructure層**: リポジトリのテスト（Broadcast, Connection リポジトリ含む）
-- **LambdaHandlers層**: API関数のテスト（全5関数）
+- **LambdaHandlers層**: API関数のテスト（全6関数：SignIn, PostMessage, UpdateParticipantName, WebSocketConnect, WebSocketDisconnect, MessageBroadcast）
 
 ### テスト分離
 - モックを使用してレイヤー間を分離

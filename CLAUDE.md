@@ -12,7 +12,6 @@
 ## アーキテクチャ
 - クリーンアーキテクチャ（Core/Infrastructure/Api層）
 - サーバーレス構成
-- 会議・参加者エンティティでデータ管理
 
 ## 開発環境セットアップ
 
@@ -55,7 +54,7 @@ sam local start-api
 ### API（NoOpinionButtonApi/）
 - `src/Api/Core/` - ドメインロジック、サービス
   - `Application/Ports/` - サービスインターフェース
-  - `Application/Services/` - SignInService, MessageService, ConnectionService, BroadcastService
+  - `Application/Services/` - SignInService, MessageService, ConnectionService, BroadcastService, ParticipantUpdateService
   - `Application/DTOs/` - リクエスト/レスポンスDTO
   - `Domain/Entities/` - Meeting, Participant, Message, Connectionエンティティ
   - `Domain/Ports/` - リポジトリインターフェース
@@ -64,6 +63,7 @@ sam local start-api
 - `src/Api/LambdaHandlers/` - Lambda関数
   - `SignInFunction/` - サインインAPI
   - `PostMessageFunction/` - メッセージ送信API
+  - `UpdateParticipantNameFunction/` - 参加者名更新API
   - `WebSocketConnectFunction/` - WebSocket接続管理
   - `WebSocketDisconnectFunction/` - WebSocket切断管理
   - `MessageBroadcastFunction/` - メッセージリアルタイム配信
@@ -75,35 +75,44 @@ sam local start-api
 ### フロントエンド（NoOpinionButtonWeb/）
 - `pages/` - ページコンポーネント
   - `signin.vue` - サインインページ
+  - `facilitator.vue` - 司会者ページ（基本実装）
+  - `participant.vue` - 参加者ページ（ほぼ完成）
+- `components/` - UIコンポーネント（Atomic Design）
+  - `atoms/` - 基本UI要素（Button, Input, ErrorMessage等）
+  - `molecules/` - 複合コンポーネント（ModalHeader, MessageItem, MessageSendingForm等）
+  - `organisms/` - 大型コンポーネント（ParticipantNameModal, MessageList等）
 - `composables/` - コンポーザブル関数
-  - `signIn/useSignIn.ts` - 状態管理
-  - `signIn/useSignInApi.ts` - API通信
+  - `signIn/` - サインイン関連（useSignIn.ts, useSignInApi.ts）
+  - `participantName/` - 参加者名関連（useParticipantNameApi.ts）
+  - `message/` - メッセージ関連（useMessageSending.ts, useMessageReception.ts, useMessageSendingApi.ts）
+  - `webSocket/` - WebSocket関連（useWebSocketConnection.ts）
 - `types/` - TypeScript型定義
   - `error.ts` - エラー型定義
 - `tests/` - テストスイート（25テストケース）
-  - `composables/` - Composables単体テスト
-  - `pages/` - コンポーネントテスト
+  - `composables/` - Composables単体テスト（各機能別）
+  - `components/` - コンポーネントテスト（atoms/molecules/organisms別）
+  - `pages/` - ページコンポーネントテスト
   - `integration/` - 統合テスト
 - `vitest.config.ts` - テスト設定
 
 ## 現在の実装状況
 
-### 完全実装済み
+### 完全実装済み（フルスタック）
 - **サインイン機能**: フルスタック実装完了
   - バックエンドAPI（.NET Core + AWS Lambda）
   - フロントエンドUI（Nuxt.js + Vue.js）
   - 認証ロジック・エラーハンドリング
   - 司会者/参加者自動判定・ページ遷移
 
-- **メッセージ機能**: バックエンド実装完了
-  - メッセージ送信API（PostMessageFunction）
-  - メッセージリアルタイム配信（MessageBroadcastFunction + DynamoDB Streams）
-  - クリーンアーキテクチャでのメッセージ処理サービス
+- **参加者名更新機能**: フルスタック実装完了
+  - バックエンドAPI（UpdateParticipantNameFunction）
+  - フロントエンドUI（ParticipantNameModal + composables）
+  - 参加者名登録・更新機能
 
-- **WebSocket接続管理**: バックエンド実装完了
-  - WebSocket接続/切断管理（WebSocketConnect/DisconnectFunction）
-  - ConnectionエンティティとConnectionService
-  - メッセージ一括配信機能（BroadcastService）
+- **メッセージ機能**: フルスタック実装完了
+  - バックエンドAPI（PostMessageFunction + MessageBroadcastFunction）
+  - フロントエンドUI（MessageSendingForm + MessageList + composables）
+  - リアルタイムメッセージ送受信・WebSocket接続管理
 
 ### テスト実装済み
 - **バックエンドテスト**: 20+テストケース
@@ -115,16 +124,9 @@ sam local start-api
   - コンポーネントテスト（9件）
   - 統合テスト（6件）
 
-### 部分実装済み
-- **メッセージ機能**: バックエンドのみ完了、フロントエンド未実装
-- **WebSocket API**: AWS CDK設定未実装
-- **BroadcastRepository**: スタブ実装、実際WebSocket送信未実装
-
 ### 未実装
-- facilitator.vue（司会者画面）
-- participant.vue（参加者画面）
-- 「意見なし」ボタン機能
-- フロントエンドのメッセージ機能
+- **司会者画面の詳細UI**: 参加者一覧・状況表示機能
+- **「意見なし」ボタン機能**: エンティティ・API・UI全て未実装
 
 ## 開発時の注意点
 - ClaudeCodeは、思考は英語で、会話は日本語で行う
@@ -133,5 +135,4 @@ sam local start-api
 - DBに変更がある場合は、database.mdを更新する
 - クリーンアーキテクチャに従って実装
 - XMLドキュメントはインターフェース側に記述し、実装側には< /inheritdoc>を記述する
-- DynamoDBのパーティションキー設計に注意
 - テスト実行: `npm test`（フロント）、`dotnet test`（バック）

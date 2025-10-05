@@ -118,13 +118,113 @@ curl -X POST http://localhost:3000/signin \
 - **404 Not Found**: リソースが見つからない
 - **500 Internal Server Error**: サーバー内部エラー
 
-## 今後追加予定の機能
+### 参加者名更新
 
-### 意見表明機能
+#### PUT /participant/name
 
-- `POST /opinion` - 意見なし状態の更新
-- `GET /meeting/{meetingId}/opinions` - 会議の意見状況取得
+参加者の名前を更新します。
 
-### リアルタイム通信
+**リクエスト**
 
-- WebSocket接続による状態のリアルタイム同期
+```http
+PUT /participant/name
+Content-Type: application/json
+```
+
+```json
+{
+  "participantId": "string",
+  "participantName": "string"
+}
+```
+
+| パラメータ | 型 | 必須 | 説明 |
+|----------|---|-----|-----|
+| participantId | string | ✓ | 参加者ID |
+| participantName | string | ✓ | 新しい参加者名 |
+
+**レスポンス**
+
+**成功時 (200 OK)**
+
+```json
+{
+  "Data": {
+    "participantId": "string",
+    "participantName": "string"
+  }
+}
+```
+
+### メッセージ送信
+
+#### POST /message
+
+会議にメッセージを送信します。
+
+**リクエスト**
+
+```http
+POST /message
+Content-Type: application/json
+```
+
+```json
+{
+  "meetingId": "string",
+  "participantId": "string",
+  "content": "string"
+}
+```
+
+| パラメータ | 型 | 必須 | 説明 |
+|----------|---|-----|-----|
+| meetingId | string | ✓ | 会議ID |
+| participantId | string | ✓ | 送信者の参加者ID |
+| content | string | ✓ | メッセージ内容 |
+
+**レスポンス**
+
+**成功時 (200 OK)**
+
+```json
+{
+  "Data": {
+    "messageId": "string",
+    "meetingId": "string",
+    "participantId": "string",
+    "participantName": "string",
+    "content": "string",
+    "createdAt": "2023-12-01T10:00:00Z"
+  }
+}
+```
+
+### WebSocket API
+
+#### WebSocket 接続
+
+**エンドポイント**: `wss://api.example.com/websocket`
+
+**接続時のクエリパラメータ**
+
+| パラメータ | 型 | 必須 | 説明 |
+|----------|---|-----|-----|
+| meetingId | string | ✓ | 会議ID |
+| participantId | string | ✓ | 参加者ID |
+
+**メッセージフォーマット**
+
+```json
+{
+  "type": "message",
+  "data": {
+    "messageId": "string",
+    "meetingId": "string",
+    "participantId": "string",
+    "participantName": "string",
+    "content": "string",
+    "createdAt": "2023-12-01T10:00:00Z"
+  }
+}
+```

@@ -19,7 +19,7 @@
 | カラム名 | 型 | PK | FK | NULL許可 | デフォルト値 | 説明 |
 |---------|---|----|----|----------|-------------|-----|
 | Id | VARCHAR(50) | ○ | | NO | `""` | 参加者ID（主キー） |
-| Name | VARCHAR(50) | | | NO | `""` | 参加者名 |
+| Name | VARCHAR(50) | | | YES | `""` | 参加者名 |
 | MeetingId | VARCHAR(50) | | ○ | NO | `""` | `Meeting` テーブルへの外部キー |
 | NoOpinionPoint | INT | | | NO | `0` | 意見ありませんボタンを押せる回数 |
 | HasOpinion | BOOLEAN | | | NO | `true` | 意見を持っているか |
